@@ -2555,12 +2555,14 @@ var CARD_DATA = [
   {tag:"字符串",q:"为什么文字要加引号？",a:"引号告诉 Python 这是一段文字（字符串），不是代码。print(\"你好\") 显示文字，print(你好) 会被当成变量名而报错。单双引号都可以，但要成对。",doc:"Python 官方文档 · 字符串"},
   {tag:"注释",q:"# 开头的一行会怎样？",a:"# 之后到行尾是注释，解释器完全忽略，只是写给人看的说明。好习惯：在关键步骤上面写一句注释。",doc:"Python 官方文档 · 注释"},
   {tag:"换行",q:"怎么让一句话分两行显示？",a:"在字符串里写 \\n 表示换行：print(\"第一行\\n第二行\")。也可以写两个 print，各显示一行。",doc:"Python 官方文档 · 转义序列"},
+  {tag:"引号",q:"单引号和双引号有什么区别？",a:"两种引号都能表示字符串，效果一样，只要左右成对且同一种即可。想在文字里保留双引号，外面就用单引号：print('他说\"你好\"')。",doc:"Python 官方文档 · 字符串"},
 ]},
 {ch:"L2",title:"变量与输入",cards:[
   {tag:"变量",q:"变量是什么？",a:"变量是给数据起的名字：age = 18 把 18 存进 age。之后写 age 就等于写 18。同一个变量可以反复赋新值，不需要先声明类型。",doc:"Python 官方文档 · 赋值语句"},
   {tag:"input",q:"input() 拿到的是什么？",a:"input(\"提示语\") 会暂停程序等用户输入，按回车后把输入内容作为字符串返回。注意：就算输入的是数字，拿到的也是字符串。",doc:"Python 官方文档 · input"},
   {tag:"类型转换",q:"输入的数字为什么不能直接计算？",a:"input() 返回字符串，\"18\" + 1 会报错。要用 int() 转成整数：age = int(input())。int() 只能转“长得像整数”的文字，int(\"abc\") 会报 ValueError。",doc:"Python 官方文档 · int"},
   {tag:"f-string",q:"f-string 怎么用？",a:"字符串前加 f，里面用 {变量名} 挖坑填值：print(f\"我是{name}，今年{age}岁\")。比用 + 拼接更直观，还自动处理数字转文字。",doc:"Python 官方文档 · 格式化字符串字面值"},
+  {tag:"int",q:"int() 是做什么的？",a:"int() 把“长得像整数”的字符串变成整数：int(\"18\") 得到 18。它不会自动处理小数或文字，int(\"18.5\") 和 int(\"abc\") 都会报 ValueError。",doc:"Python 官方文档 · int"},
 ]},
 ];
 
@@ -2571,24 +2573,24 @@ var CARD_DATA = [
 var BANK_VERSION = 2;
 var TOTAL_LEVELS = 16;
 var QUIZ_DATA = [
-/* ========== L1 第一行代码（读2 补2 找Bug2 选实现1 概念1） ========== */
-{m:"L1",kind:"read",tag:"print",q:"下面这行代码想做什么？\n\nprint(\"你好，小明\")",opts:["在屏幕上显示：你好，小明","把这句话存进电脑保存起来","让电脑朗读这句话","检查这句话有没有错别字"],ans:0,doc:"print 会把括号里的内容显示出来"},
-{m:"L1",kind:"blank",tag:"字符串",q:"想让程序显示 你好，小明，横线处该填什么？\n\nprint(____)",opts:["你好，小明","\"你好，小明\"","(你好，小明)","[你好，小明]"],ans:1,doc:"文字要用引号包住才是字符串"},
-{m:"L1",kind:"bug",tag:"print",q:"下面哪一行能正确显示 你好？",opts:["print(你好)","print(\"你好\")","print '你好'","Print(\"你好\")"],ans:1,doc:"print 全小写，文字要加引号"},
-{m:"L1",kind:"read",tag:"注释",q:"这段代码会显示什么？\n\n# 这是我的第一行代码\nprint(\"开工\")",opts:["这是我的第一行代码 和 开工 两行","只有 开工 一行","只有 这是我的第一行代码 一行","什么都不会显示"],ans:1,doc:"# 开头的是注释，不会被执行"},
-{m:"L1",kind:"blank",tag:"换行",q:"想让一句话分两行显示，横线处该填什么？\n\nprint(\"第一行____第二行\")",opts:["\\n","\\t","//","##"],ans:0,doc:"\\n 表示换行"},
-{m:"L1",kind:"bug",tag:"字符串",q:"这行代码为什么报错？\n\nprint(\"你好)",opts:["少了右边的引号","print 拼错了","括号多了一个","中文不能放进 print"],ans:0,doc:"引号必须成对出现"},
-{m:"L1",kind:"pick",tag:"print",q:"【选实现】想分两行显示名字和口号，哪段代码能做到？",opts:["print(\"小明\")\nprint(\"代码改变世界\")","print(\"小明\" \"代码改变世界\")","print(\"小明\" + \"代码改变世界\")","print(\"小明\", \"代码改变世界\")"],ans:0,doc:"两个 print 各显示一行"},
-{m:"L1",kind:"concept",tag:"print",q:"关于 print，下面哪种说法对？",opts:["print 只能显示数字","print 一次只能显示一行","print 可以显示文字、数字和计算结果","print 会把内容保存到文件里"],ans:2,doc:"print 什么都能显示"},
-/* ========== L2 变量与输入（读2 补2 找Bug2 选实现1 概念1） ========== */
-{m:"L2",kind:"read",tag:"变量",q:"这段代码想做什么？\n\nname = \"小明\"\nprint(name)",opts:["显示 小明","显示 name","把小明从电脑里删掉","比较 name 和小明是否一样"],ans:0,doc:"print(变量) 显示的是变量里存的内容"},
-{m:"L2",kind:"blank",tag:"变量",q:"想把 18 存进变量 age，横线处该填什么？\n\n____ = 18",opts:["age","18","==","print"],ans:0,doc:"变量名写在等号左边"},
-{m:"L2",kind:"bug",tag:"input",q:"想输入年龄再加 1，这段代码为什么报错？\n\nage = input(\"年龄：\")\nprint(age + 1)",opts:["input 拿到的是文字（字符串），不能直接加数字","age 这个名字不能用","print 里不能写 + 1","应该先 print 再 input"],ans:0,doc:"input 永远返回字符串，要先 int() 转换"},
-{m:"L2",kind:"read",tag:"input",q:"这段代码运行时，会先发生什么？\n\nname = input(\"你叫什么？\")\nprint(\"你好，\" + name)",opts:["先显示 你好，再等你输入","先停下等你输入，再显示问候","直接显示 你叫什么？ 然后结束","一闪而过，什么都看不到"],ans:1,doc:"input 会暂停程序，等用户输入"},
-{m:"L2",kind:"blank",tag:"类型转换",q:"想把输入的内容变成整数来参与计算，横线处该填什么？\n\nage = ____(input(\"年龄：\"))",opts:["str","int","print","input"],ans:1,doc:"int() 把整数字符串转成整数"},
-{m:"L2",kind:"bug",tag:"类型转换",q:"这行代码为什么报错？\n\nprint(int(\"abc\"))",opts:["\"abc\" 不是数字，int() 转不了","int 后面不能加括号","print 里不能用 int","abc 要用单引号才行"],ans:0,doc:"int() 只能转长得像整数的文字"},
-{m:"L2",kind:"pick",tag:"f-string",q:"【选实现】输入姓名和年龄后，想显示 我是小明，今年18岁，哪段代码对？",opts:["name = input(\"姓名：\")\nage = int(input(\"年龄：\"))\nprint(f\"我是{name}，今年{age}岁\")","name = input(\"姓名：\")\nage = int(input(\"年龄：\"))\nprint(\"我是name，今年age岁\")","name = input(\"姓名：\")\nage = int(input(\"年龄：\"))\nprint(\"我是{name}，今年{age}岁\")","name = input(\"姓名：\")\nage = int(input(\"年龄：\"))\nprint(\"我是\" + name + \"，今年\" + age + \"岁\")"],ans:0,doc:"f-string 挖坑填值；少了 f 会原样显示花括号"},
-{m:"L2",kind:"concept",tag:"变量",q:"关于变量，下面哪种说法对？",opts:["变量必须先声明类型才能使用","同一个变量可以反复赋新值","变量一旦赋值就不能再改","变量名里可以带空格"],ans:1,doc:"变量是可以换内容的名字"},
+/* ========== L1 第一行代码（DeepSeek 生成 · 读2 补2 找Bug2 选实现1 概念1） ========== */
+{m:"L1",kind:"read",tag:"print",q:"这段代码运行后，屏幕上一共显示几行文字？\n# 名片第一行\nprint(\"小明\")\nprint(\"大一新生\")",opts:["2 行","3 行","1 行","0 行，有注释就不会输出"],ans:0,doc:"注释不产生输出"},
+{m:"L1",kind:"read",tag:"引号",q:"运行这段代码，屏幕上显示的是什么？\nprint('Python')\nprint(\"Python\")",opts:["两行，都是 Python，不带引号","两行，第一行带单引号、第二行带双引号","只有一行 Python","报错，单引号和双引号不能混用"],ans:0,doc:"引号只是标记，不显示出来"},
+{m:"L1",kind:"blank",tag:"引号",q:"要输出：他说\"你好\"（屏幕上保留双引号），横线处应填？\nprint(____)",opts:["'他说\"你好\"'","\"他说\"你好\"\"","'他说'你好''","他说\"你好\""],ans:0,doc:"外面用单引号，里面就能放双引号"},
+{m:"L1",kind:"blank",tag:"注释",q:"想在代码里写一句给人看的说明「打印问候语」，又不影响运行，横线处应填？\n____ 打印问候语\nprint(\"你好\")",opts:["#","//","/*","--"],ans:0,doc:"Python 用 # 写单行注释"},
+{m:"L1",kind:"bug",tag:"引号",q:"下面哪一行代码会报错？",opts:["print(\"你好\")","print('你好')","print(\"你好')","print(\"你好\" )"],ans:2,doc:"左右引号必须成对且同一种"},
+{m:"L1",kind:"bug",tag:"字符串",q:"运行 print(你好) 会发生什么？",opts:["屏幕输出 你好","报错：NameError，你好 不是已定义的变量","屏幕输出 \"你好\"，带引号","屏幕输出一个空行"],ans:1,doc:"文字要放进引号里才是字符串"},
+{m:"L1",kind:"pick",tag:"print",q:"【选实现】任务：屏幕上分三行显示 小明、18 岁、爱打篮球。哪段代码能做到？",opts:["print(\"小明\")\nprint(\"18 岁\")\nprint(\"爱打篮球\")","print(\"小明\" \"18 岁\" \"爱打篮球\")","print(\"小明\"\nprint(\"18 岁\"\nprint(\"爱打篮球\")","print(\"小明\", \"18 岁\", \"爱打篮球\")"],ans:0,doc:"想分几行就用几个 print"},
+{m:"L1",kind:"concept",tag:"字符串",q:"关于 print 和字符串，下面哪个说法正确？",opts:["字符串可以用单引号或双引号括起来","字符串只能用双引号，单引号一定报错","print 后面必须加分号","代码后面的注释也会被打印出来"],ans:0,doc:"单双引号等价"},
+/* ========== L2 变量与输入（DeepSeek 生成 · 读2 补2 找Bug2 选实现1 概念1） ========== */
+{m:"L2",kind:"read",tag:"input",q:"运行下面代码时输入 18，会发生什么？\nage = input(\"年龄：\")\nprint(age + 1)",opts:["显示 19","显示 181","报错：字符串不能和整数相加","显示 18"],ans:2,doc:"input 返回的一定是字符串"},
+{m:"L2",kind:"read",tag:"f-string",q:"运行下面代码，屏幕显示什么？\nname = \"小明\"\nprint(f\"你好，{name}\")",opts:["你好，小明","你好，{name}","你好，name","报错，f 不能写在引号前面"],ans:0,doc:"f-string 会把 {} 里的变量换成值"},
+{m:"L2",kind:"blank",tag:"int",q:"输入 18，要让下面代码输出 19，横线处应填？\nage = ____(input(\"年龄：\"))\nprint(age + 1)",opts:["int","str","input","print"],ans:0,doc:"int() 把字符串变成整数"},
+{m:"L2",kind:"blank",tag:"f-string",q:"要输出 小明 明年 19 岁，横线处应填？\nname = \"小明\"\nage = 18\nprint(____\"{name} 明年 {age + 1} 岁\")",opts:["f","r","b","str"],ans:0,doc:"f 前缀要贴在引号前面"},
+{m:"L2",kind:"bug",tag:"input",q:"下面的代码想算明年年龄，运行时却报错，问题出在哪？\nname = input(\"姓名：\")\nage = input(\"年龄：\")\nprint(f\"{name} 明年 {age + 1} 岁\")",opts:["age 还是字符串，不能和 1 相加","f-string 的 {} 里不能写表达式","变量不能叫 name","input 不能连续调用两次"],ans:0,doc:"先 int(age) 再计算"},
+{m:"L2",kind:"bug",tag:"变量",q:"下面哪一行会报错？",opts:["name = \"小明\"","\"name\" = \"小明\"","age = 18","score = 95.5"],ans:1,doc:"等号左边必须是变量名，不能加引号"},
+{m:"L2",kind:"pick",tag:"f-string",q:"【选实现】任务：依次输入 小明 和 18，输出 小明 明年 19 岁。哪段代码能做到？",opts:["name = input()\nage = int(input())\nprint(f\"{name} 明年 {age+1} 岁\")","name = input()\nage = input()\nprint(f\"{name} 明年 {age+1} 岁\")","name = input()\nage = int(input())\nprint(\"{name} 明年 {age+1} 岁\")","name = input()\nage = int(input())\nprint(name + \"明年\" + age + 1)"],ans:0,doc:"转换 + f 前缀 缺一不可"},
+{m:"L2",kind:"concept",tag:"input",q:"关于 input()，下面哪个说法正确？",opts:["它返回的永远是字符串，要算数得先转换","它返回的数字可以直接做加法","它只能调用一次，第二次会报错","它必须写在 print 里面才能用"],ans:0,doc:"input 一律返回 str"},
 ];
 
 </script>
@@ -2703,7 +2705,7 @@ function isLevelUnlocked(lv){
   if(lv <= 1) return true;
   return !!STATE.cleared[lv - 1];
 }
-var SAVE_VERSION = 3; /* 3：题库整体更换为 16 关主线，旧存档（609 关时代）作废重来 */
+var SAVE_VERSION = 4; /* 4：L1-L2 换为 DeepSeek 生成版，题序变化，旧错题本作废重来 */
 var STATE = {
   starred:{}, wrongBook:{}, mastered:{}, love:0, name:"用户1",
   sched:{}, checkin:{}, cleared:{},
