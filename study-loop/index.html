@@ -2560,28 +2560,28 @@ var CARD_DATA = [
 
 </script>
 <script>
-/* 主线题库：16 关 × 8 题（读2 补2 找Bug2 写1 概念1），面向零基础 */
+/* 主线题库：16 关 × 8 题（读2 补2 找Bug2 选实现1 概念1），面向零基础，全选择题 */
 /* 当前已录入 L1-L2；L3-L16 由题库流水线分批生成后按同样格式追加 */
 var BANK_VERSION = 2;
 var TOTAL_LEVELS = 16;
 var QUIZ_DATA = [
-/* ========== L1 第一行代码（读2 补2 找Bug2 写1 概念1） ========== */
+/* ========== L1 第一行代码（读2 补2 找Bug2 选实现1 概念1） ========== */
 {m:"L1",kind:"read",tag:"print",q:"下面这行代码想做什么？\n\nprint(\"你好，小明\")",opts:["在屏幕上显示：你好，小明","把这句话存进电脑保存起来","让电脑朗读这句话","检查这句话有没有错别字"],ans:0,doc:"print 会把括号里的内容显示出来"},
 {m:"L1",kind:"blank",tag:"字符串",q:"想让程序显示 你好，小明，横线处该填什么？\n\nprint(____)",opts:["你好，小明","\"你好，小明\"","(你好，小明)","[你好，小明]"],ans:1,doc:"文字要用引号包住才是字符串"},
 {m:"L1",kind:"bug",tag:"print",q:"下面哪一行能正确显示 你好？",opts:["print(你好)","print(\"你好\")","print '你好'","Print(\"你好\")"],ans:1,doc:"print 全小写，文字要加引号"},
 {m:"L1",kind:"read",tag:"注释",q:"这段代码会显示什么？\n\n# 这是我的第一行代码\nprint(\"开工\")",opts:["这是我的第一行代码 和 开工 两行","只有 开工 一行","只有 这是我的第一行代码 一行","什么都不会显示"],ans:1,doc:"# 开头的是注释，不会被执行"},
 {m:"L1",kind:"blank",tag:"换行",q:"想让一句话分两行显示，横线处该填什么？\n\nprint(\"第一行____第二行\")",opts:["\\n","\\t","//","##"],ans:0,doc:"\\n 表示换行"},
 {m:"L1",kind:"bug",tag:"字符串",q:"这行代码为什么报错？\n\nprint(\"你好)",opts:["少了右边的引号","print 拼错了","括号多了一个","中文不能放进 print"],ans:0,doc:"引号必须成对出现"},
-{m:"L1",kind:"write",tag:"print",type:"code",q:"【动手写】写一段代码，分两行显示：第一行你的名字，第二行一句你喜欢的口号。",refCode:"print(\"小明\")\nprint(\"代码改变世界\")",expect:"小明\n代码改变世界",doc:"两个 print 各显示一行"},
+{m:"L1",kind:"pick",tag:"print",q:"【选实现】想分两行显示名字和口号，哪段代码能做到？",opts:["print(\"小明\")\nprint(\"代码改变世界\")","print(\"小明\" \"代码改变世界\")","print(\"小明\" + \"代码改变世界\")","print(\"小明\", \"代码改变世界\")"],ans:0,doc:"两个 print 各显示一行"},
 {m:"L1",kind:"concept",tag:"print",q:"关于 print，下面哪种说法对？",opts:["print 只能显示数字","print 一次只能显示一行","print 可以显示文字、数字和计算结果","print 会把内容保存到文件里"],ans:2,doc:"print 什么都能显示"},
-/* ========== L2 变量与输入（读2 补2 找Bug2 写1 概念1） ========== */
+/* ========== L2 变量与输入（读2 补2 找Bug2 选实现1 概念1） ========== */
 {m:"L2",kind:"read",tag:"变量",q:"这段代码想做什么？\n\nname = \"小明\"\nprint(name)",opts:["显示 小明","显示 name","把小明从电脑里删掉","比较 name 和小明是否一样"],ans:0,doc:"print(变量) 显示的是变量里存的内容"},
 {m:"L2",kind:"blank",tag:"变量",q:"想把 18 存进变量 age，横线处该填什么？\n\n____ = 18",opts:["age","18","==","print"],ans:0,doc:"变量名写在等号左边"},
 {m:"L2",kind:"bug",tag:"input",q:"想输入年龄再加 1，这段代码为什么报错？\n\nage = input(\"年龄：\")\nprint(age + 1)",opts:["input 拿到的是文字（字符串），不能直接加数字","age 这个名字不能用","print 里不能写 + 1","应该先 print 再 input"],ans:0,doc:"input 永远返回字符串，要先 int() 转换"},
 {m:"L2",kind:"read",tag:"input",q:"这段代码运行时，会先发生什么？\n\nname = input(\"你叫什么？\")\nprint(\"你好，\" + name)",opts:["先显示 你好，再等你输入","先停下等你输入，再显示问候","直接显示 你叫什么？ 然后结束","一闪而过，什么都看不到"],ans:1,doc:"input 会暂停程序，等用户输入"},
 {m:"L2",kind:"blank",tag:"类型转换",q:"想把输入的内容变成整数来参与计算，横线处该填什么？\n\nage = ____(input(\"年龄：\"))",opts:["str","int","print","input"],ans:1,doc:"int() 把整数字符串转成整数"},
 {m:"L2",kind:"bug",tag:"类型转换",q:"这行代码为什么报错？\n\nprint(int(\"abc\"))",opts:["\"abc\" 不是数字，int() 转不了","int 后面不能加括号","print 里不能用 int","abc 要用单引号才行"],ans:0,doc:"int() 只能转长得像整数的文字"},
-{m:"L2",kind:"write",tag:"f-string",type:"code",q:"【动手写】用变量存你的姓名和年龄，再用 f-string 按这个格式显示一行：我是小明，今年18岁。（换成你自己的姓名和年龄）",refCode:"name = \"小明\"\nage = 18\nprint(f\"我是{name}，今年{age}岁\")",expect:"我是小明，今年18岁",doc:"f-string 用 {变量名} 挖坑填值"},
+{m:"L2",kind:"pick",tag:"f-string",q:"【选实现】输入姓名和年龄后，想显示 我是小明，今年18岁，哪段代码对？",opts:["name = input(\"姓名：\")\nage = int(input(\"年龄：\"))\nprint(f\"我是{name}，今年{age}岁\")","name = input(\"姓名：\")\nage = int(input(\"年龄：\"))\nprint(\"我是name，今年age岁\")","name = input(\"姓名：\")\nage = int(input(\"年龄：\"))\nprint(\"我是{name}，今年{age}岁\")","name = input(\"姓名：\")\nage = int(input(\"年龄：\"))\nprint(\"我是\" + name + \"，今年\" + age + \"岁\")"],ans:0,doc:"f-string 挖坑填值；少了 f 会原样显示花括号"},
 {m:"L2",kind:"concept",tag:"变量",q:"关于变量，下面哪种说法对？",opts:["变量必须先声明类型才能使用","同一个变量可以反复赋新值","变量一旦赋值就不能再改","变量名里可以带空格"],ans:1,doc:"变量是可以换内容的名字"},
 ];
 
@@ -2601,7 +2601,7 @@ function toast(msg){
 }
 
 /* ===================== 全局状态 ===================== */
-var CARDS_PER_LEVEL = 8; /* 新主线每关 8 题：读2 补2 找Bug2 写1 概念1 */
+var CARDS_PER_LEVEL = 8; /* 新主线每关 8 题：读2 补2 找Bug2 选实现1 概念1 */
 
 /* ===================== 开场视频 ===================== */
 /* 每次打开都完整播放一遍（head 里已把 <html> 标记成 mnk-first-run）。 */
