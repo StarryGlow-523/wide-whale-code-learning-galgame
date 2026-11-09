@@ -2180,7 +2180,7 @@ button.closex .x-ico{max-width:14px;max-height:14px;}
   <div class="top">
     <button class="backbtn" id="quizBack" type="button" aria-label="返回地图">‹</button>
     <div class="progressbar" id="quizProg">
-      <span id="quizProgText">第 1 / 10 题</span>
+      <span id="quizProgText">第 1 / 8 题</span>
     </div>
   </div>
   <div class="girlzone">
@@ -2550,21 +2550,127 @@ button.closex .x-ico{max-width:14px;max-height:14px;}
 <script>
 /* 自动生成：tools/bank/build.py —— 勿手改 */
 var CARD_DATA = [
-{ch:"L1",title:"第一行代码",cards:[
-  {tag:"print",q:"print 是做什么的？",a:"print() 把括号里的内容显示到屏幕上，是程序“说话”的方式。文字、数字、计算结果都能显示。",doc:"Python 官方文档 · print"},
-  {tag:"字符串",q:"为什么文字要加引号？",a:"引号告诉 Python 这是一段文字（字符串），不是代码。print(\"你好\") 显示文字，print(你好) 会被当成变量名而报错。单双引号都可以，但要成对。",doc:"Python 官方文档 · 字符串"},
-  {tag:"注释",q:"# 开头的一行会怎样？",a:"# 之后到行尾是注释，解释器完全忽略，只是写给人看的说明。好习惯：在关键步骤上面写一句注释。",doc:"Python 官方文档 · 注释"},
-  {tag:"换行",q:"怎么让一句话分两行显示？",a:"在字符串里写 \\n 表示换行：print(\"第一行\\n第二行\")。也可以写两个 print，各显示一行。",doc:"Python 官方文档 · 转义序列"},
-  {tag:"引号",q:"单引号和双引号有什么区别？",a:"两种引号都能表示字符串，效果一样，只要左右成对且同一种即可。想在文字里保留双引号，外面就用单引号：print('他说\"你好\"')。",doc:"Python 官方文档 · 字符串"},
+{ch:"M1",title:"基础语法",cards:[
+  {tag:"变量与赋值",q:"Python 变量需要先声明类型吗？",a:"不需要。变量只是名字绑定到对象，动态类型；a, b = 1, 2 可以同时赋值，a, b = b, a 可直接交换。",doc:"Python 官方文档 · 执行模型 · 命名与绑定"},
+  {tag:"数值与运算符",q:"// 和 % 与 / 有什么区别？",a:"/ 是真除法返回 float；// 是向下取整的整除；% 取余，符号跟除数一致。-7 // 2 == -4。",doc:"Python 官方文档 · 算术运算符"},
+  {tag:"字符串",q:"字符串是不可变的，那 s[0] = 'x' 会怎样？",a:"抛 TypeError。字符串不可原地修改，只能生成新串：s = 'x' + s[1:]。",doc:"Python 官方文档 · 文本序列类型 str"},
+  {tag:"f-string",q:"f-string 如何控制小数位与补零？",a:"f\"{pi:.2f}\" 保留两位小数；f\"{n:05d}\" 补零到 5 位；f\"{x:>8}\" 右对齐 8 宽。",doc:"Python 官方文档 · 格式化字符串字面值"},
+  {tag:"类型转换",q:"int('12.5') 能成功吗？",a:"不能，抛 ValueError。要先 float('12.5') 再 int()，或 int(float('12.5'))。int('12') 才合法。",doc:"Python 官方文档 · 内置函数 · int"},
+  {tag:"输入输出",q:"input() 拿到数字要怎么做运算？",a:"input() 永远返回 str，必须显式 int(input()) 或 float(input()) 才能参与算术。",doc:"Python 官方文档 · 内置函数 · input"},
+  {tag:"布尔与比较",q:"哪些值在 if 里判定为假？",a:"False、None、0、0.0、''、[]、()、{}、set() 等空容器；其余为真。",doc:"Python 官方文档 · 真值测试"},
+  {tag:"注释与缩进",q:"缩进不一致会报什么错？",a:"IndentationError（语法错误的一种）；混用 Tab 与空格还会抛 TabError。PEP 8 推荐 4 空格。",doc:"PEP 8 · 缩进"},
 ]},
-{ch:"L2",title:"变量与输入",cards:[
-  {tag:"变量",q:"变量是什么？",a:"变量是给数据起的名字：age = 18 把 18 存进 age。之后写 age 就等于写 18。同一个变量可以反复赋新值，不需要先声明类型。",doc:"Python 官方文档 · 赋值语句"},
-  {tag:"input",q:"input() 拿到的是什么？",a:"input(\"提示语\") 会暂停程序等用户输入，按回车后把输入内容作为字符串返回。注意：就算输入的是数字，拿到的也是字符串。",doc:"Python 官方文档 · input"},
-  {tag:"类型转换",q:"输入的数字为什么不能直接计算？",a:"input() 返回字符串，\"18\" + 1 会报错。要用 int() 转成整数：age = int(input())。int() 只能转“长得像整数”的文字，int(\"abc\") 会报 ValueError。",doc:"Python 官方文档 · int"},
-  {tag:"f-string",q:"f-string 怎么用？",a:"字符串前加 f，里面用 {变量名} 挖坑填值：print(f\"我是{name}，今年{age}岁\")。比用 + 拼接更直观，还自动处理数字转文字。",doc:"Python 官方文档 · 格式化字符串字面值"},
-  {tag:"int",q:"int() 是做什么的？",a:"int() 把“长得像整数”的字符串变成整数：int(\"18\") 得到 18。它不会自动处理小数或文字，int(\"18.5\") 和 int(\"abc\") 都会报 ValueError。",doc:"Python 官方文档 · int"},
+{ch:"M2",title:"流程控制",cards:[
+  {tag:"if/elif",q:"多个 elif 会全部判断一遍吗？",a:"不会。自上而下，命中第一个为真的分支就执行并跳出整个结构，后面的不再判断。",doc:"Python 官方文档 · if 语句"},
+  {tag:"for 循环",q:"for 循环遍历的是什么？",a:"任何可迭代对象（list/str/dict/range/生成器）。遍历 dict 默认拿到键。",doc:"Python 官方文档 · for 语句"},
+  {tag:"range",q:"range(1, 10, 2) 包含哪些数？",a:"1,3,5,7,9。左闭右开，step 可为负；range 是惰性序列，不占列表内存。",doc:"Python 官方文档 · range 对象"},
+  {tag:"while 循环",q:"while 循环最容易出什么问题？",a:"死循环：循环变量没有在循环体内改变，条件永远为真。",doc:"Python 官方文档 · while 语句"},
+  {tag:"break/continue",q:"break 和 continue 的区别？",a:"break 直接结束整个循环；continue 只跳过本次剩余语句，进入下一次迭代。",doc:"Python 官方文档 · break 与 continue"},
+  {tag:"循环 else",q:"for ... else 的 else 什么时候执行？",a:"循环自然结束（没有被 break 打断）时执行；常用于“没找到”分支。",doc:"Python 官方文档 · 循环中的 else 子句"},
+  {tag:"嵌套循环",q:"双重 for 循环总共执行多少次内层？",a:"外层次数 × 内层次数；若内层用了 break，只跳出最内层那一轮。",doc:"Python 官方文档 · 复合语句"},
+  {tag:"条件表达式",q:"x if cond else y 怎么读？",a:"条件表达式：cond 为真取 x，否则取 y。只能是一个表达式，不能写语句。",doc:"Python 官方文档 · 条件表达式"},
+]},
+{ch:"M3",title:"数据结构",cards:[
+  {tag:"列表",q:"append 和 extend 有什么区别？",a:"append(x) 把 x 整体当一个元素加入；extend(iterable) 把可迭代对象逐个展开加入。",doc:"Python 官方文档 · 列表方法"},
+  {tag:"切片",q:"s[::-1] 做了什么？",a:"步长为 -1 的反转切片，返回新对象；原列表不变。切片是浅拷贝。",doc:"Python 官方文档 · 序列类型 · 切片"},
+  {tag:"元组",q:"元组不可变，那 t = ([1], 2) 能改吗？",a:"元组本身不可变，但里面的可变元素可以改：t[0].append(3) 合法，t[1] = 3 抛 TypeError。",doc:"Python 官方文档 · 元组"},
+  {tag:"字典",q:"d.get(k) 和 d[k] 的区别？",a:"d[k] 键不存在抛 KeyError；d.get(k) 返回 None，d.get(k, 默认值) 返回默认值。",doc:"Python 官方文档 · 映射类型 dict"},
+  {tag:"集合",q:"set 能放列表吗？",a:"不能，元素必须可哈希。list/dict 不可哈希，tuple 可以。set 本身去重且无序。",doc:"Python 官方文档 · 集合类型"},
+  {tag:"推导式",q:"推导式和 for 循环谁快？",a:"推导式通常更快：在 C 层完成追加，且不需要反复调用 append。",doc:"Python 官方文档 · 推导式"},
+  {tag:"排序",q:"sorted 和 list.sort 的区别？",a:"sorted 返回新列表，原对象不变，可接受任何可迭代；list.sort 原地排序返回 None。",doc:"Python 官方文档 · 排序"},
+  {tag:"解包",q:"a, *rest = [1,2,3,4] 的结果？",a:"a=1，rest=[2,3,4]。星号收集剩余元素为列表，可放在任意位置。",doc:"Python 官方文档 · 赋值语句 · 解包"},
+]},
+{ch:"M4",title:"函数",cards:[
+  {tag:"函数定义",q:"没有 return 的函数返回什么？",a:"返回 None。return 同时结束函数执行，return 多个值其实是返回元组。",doc:"Python 官方文档 · 函数定义"},
+  {tag:"参数与默认值",q:"默认参数为什么不能写可变对象？",a:"默认值只在定义时求值一次，所有调用共享同一个 list；要写成 def f(x=None)。",doc:"Python 官方文档 · 默认参数值"},
+  {tag:"可变参数",q:"*args 和 **kwargs 分别收集什么？",a:"*args 收集多余位置参数为 tuple；**kwargs 收集多余关键字参数为 dict。",doc:"Python 官方文档 · 可变参数"},
+  {tag:"作用域",q:"函数里给全局变量赋值会发生什么？",a:"不加 global 会创建同名局部变量，外层不变；要改全局必须写 global x。",doc:"Python 官方文档 · global 与 nonlocal"},
+  {tag:"lambda",q:"lambda 有什么限制？",a:"只能写单个表达式，不能包含语句或 return；常用于 sorted(key=)、map、filter。",doc:"Python 官方文档 · lambda 表达式"},
+  {tag:"高阶函数",q:"map 和 filter 返回什么？",a:"都返回惰性迭代器，要用 list() 才看到全部结果；Python 3 起不再返回列表。",doc:"Python 官方文档 · 内置函数 · map/filter"},
+  {tag:"递归",q:"写递归必须注意什么？",a:"必须有终止条件，否则 RecursionError；Python 默认递归深度约 1000 层。",doc:"Python 官方文档 · 递归限制"},
+  {tag:"返回值",q:"函数能返回多个值吗？",a:"语法上 return a, b 返回的是元组 (a, b)，接收时可用 a, b = f() 解包。",doc:"Python 官方文档 · return 语句"},
+]},
+{ch:"M5",title:"文件与异常",cards:[
+  {tag:"文件模式",q:"r、w、a、r+ 分别是什么行为？",a:"r 只读，文件不存在报错；w 清空重写；a 追加；r+ 读写且不清空。",doc:"Python 官方文档 · open · 模式"},
+  {tag:"文件读写",q:"read()、readline()、readlines() 区别？",a:"read 读全部为字符串；readline 读一行；readlines 读全部为字符串列表。大文件用 for line in f。",doc:"Python 官方文档 · 文件对象"},
+  {tag:"with 语句",q:"为什么推荐 with open(...) as f？",a:"上下文管理器保证退出时自动 close，即使块内抛异常也不泄露文件句柄。",doc:"Python 官方文档 · with 语句"},
+  {tag:"异常类型",q:"KeyError、IndexError、ValueError 各在什么场景？",a:"KeyError 字典键不存在；IndexError 序列下标越界；ValueError 类型对但值不合法（如 int('abc')）。",doc:"Python 官方文档 · 内置异常"},
+  {tag:"try/except/else/finally",q:"四个块各自什么时候执行？",a:"try 放风险代码；except 捕获到异常时执行；else 无异常时执行；finally 无论如何都执行。",doc:"Python 官方文档 · 异常处理"},
+  {tag:"自定义异常",q:"自定义异常怎么定义？",a:"class MyError(Exception): pass，抛 raise MyError('msg')，用 except MyError 捕获。",doc:"Python 官方文档 · 用户自定义异常"},
+  {tag:"编码",q:"open 时 encoding 不写会怎样？",a:"使用系统默认编码（Windows 常为 GBK），跨平台易乱码或 UnicodeDecodeError，建议显式 encoding='utf-8'。",doc:"Python 官方文档 · 文本编码"},
+]},
+{ch:"M6",title:"面向对象",cards:[
+  {tag:"类与实例",q:"类属性和实例属性有什么区别？",a:"类属性定义在类体内，所有实例共享；实例属性在 __init__ 里用 self.x 赋值，各自独立。",doc:"Python 官方文档 · 类"},
+  {tag:"构造方法",q:"__init__ 什么时候被调用？",a:"实例化时自动调用，self 指向新对象；它不返回对象，写 return 非 None 会报 TypeError。",doc:"Python 官方文档 · 类 · __init__"},
+  {tag:"继承",q:"子类怎么调用父类方法？",a:"super().method(...)，等价于父类名.method(self, ...)，但 super 支持多重继承的 MRO 链。",doc:"Python 官方文档 · 继承"},
+  {tag:"方法重写",q:"重写方法后如何保留父类逻辑？",a:"在子类方法里先调 super().method(...)，再补充自己的逻辑。",doc:"Python 官方文档 · 继承"},
+  {tag:"MRO",q:"C(A, B) 时方法查找顺序？",a:"按方法解析顺序 MRO：C → A → B → object（C3 线性化），可用 C.mro() 查看。",doc:"Python 官方文档 · 多重继承 · MRO"},
+  {tag:"特殊方法",q:"__str__ 和 __repr__ 的区别？",a:"__str__ 给人看（print），__repr__ 给开发者看（交互式回显）；只定义 __repr__ 时 print 也会用它。",doc:"Python 官方文档 · 特殊方法"},
+  {tag:"类方法与静态方法",q:"@classmethod 和 @staticmethod 区别？",a:"classmethod 第一个参数是 cls，可访问类属性、常用于备用构造器；staticmethod 不自动传参，等同普通函数。",doc:"Python 官方文档 · 函数装饰器 · classmethod"},
+  {tag:"属性与封装",q:"@property 有什么用？",a:"把方法伪装成属性访问，可在取值/赋值时加校验，实现只读属性和封装。",doc:"Python 官方文档 · property"},
+]},
+{ch:"M7",title:"模块与包",cards:[
+  {tag:"import",q:"import math 之后怎么用？",a:"用 math.sqrt(9) 这种“模块名.成员”方式访问；被导入的模块只在首次导入时执行一次。",doc:"Python 官方文档 · 模块"},
+  {tag:"from import",q:"from math import sqrt 有什么风险？",a:"会把 sqrt 塞进当前命名空间，可能覆盖同名变量；from m import * 更不推荐。",doc:"Python 官方文档 · 导入语句"},
+  {tag:"模块搜索路径",q:"import 时按什么顺序找模块？",a:"先查 sys.modules 缓存，再依次查内置模块、sys.path（当前目录、PYTHONPATH、site-packages）。",doc:"Python 官方文档 · 模块搜索路径"},
+  {tag:"包结构",q:"包里的 __init__.py 有什么作用？",a:"标识目录为包并在导入包时执行，可用来控制对外暴露的接口（__all__）。",doc:"Python 官方文档 · 包"},
+  {tag:"标准库 math",q:"math.floor 和 int 有什么区别？",a:"math.floor 返回不大于参数的最大整数（向下取整），对负数与 int 不同：int(-1.5) == -1，floor(-1.5) == -2。",doc:"Python 官方文档 · math"},
+  {tag:"标准库 random",q:"random.seed(42) 有什么意义？",a:"固定随机种子，使后续随机序列可复现，便于测试和调试。",doc:"Python 官方文档 · random"},
+  {tag:"json",q:"json.dumps 和 json.loads 的方向？",a:"dumps 把 Python 对象序列化成 JSON 字符串；loads 把 JSON 字符串解析成 Python 对象。",doc:"Python 官方文档 · json"},
+  {tag:"re",q:"re.findall 返回什么？",a:"返回所有不重叠匹配组成的列表；无分组时是字符串列表，有分组时是元组列表。",doc:"Python 官方文档 · re"},
+]},
+{ch:"M8",title:"算法入门",cards:[
+  {tag:"时间复杂度",q:"常见复杂度从低到高怎么排？",a:"O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ)。",doc:"算法导论 · 渐进记号"},
+  {tag:"空间复杂度",q:"递归算法的空间开销来自哪里？",a:"调用栈：每层递归压一帧，空间 O(递归深度)。",doc:"算法导论 · 空间复杂度"},
+  {tag:"排序",q:"冒泡排序最坏时间复杂度？",a:"O(n²)，最好（已有序且加标志位优化）O(n)；稳定排序。",doc:"算法导论 · 排序"},
+  {tag:"二分查找",q:"二分查找的前提和时间复杂度？",a:"前提是序列有序，每次砍半，时间 O(log n)，空间 O(1)（迭代版）。",doc:"算法导论 · 二分查找"},
+  {tag:"递归",q:"汉诺塔 n 层需要多少步？",a:"2ⁿ − 1 步；递推 T(n) = 2T(n−1) + 1。",doc:"算法导论 · 分治"},
+  {tag:"动态规划",q:"动态规划适用的两个前提？",a:"最优子结构 + 重叠子问题；核心是状态定义与转移方程，可用记忆化或自底向上。",doc:"算法导论 · 动态规划"},
+  {tag:"哈希表",q:"哈希表平均查找复杂度？",a:"平均 O(1)，最坏 O(n)（大量冲突）；Python 的 dict/set 基于哈希表。",doc:"算法导论 · 散列表"},
+]},
+{ch:"M9",title:"爬虫基础",cards:[
+  {tag:"HTTP 请求",q:"GET 和 POST 的主要区别？",a:"GET 参数拼在 URL 上、有长度限制、可被缓存；POST 数据放请求体、适合提交与上传。",doc:"RFC 9110 · HTTP 语义"},
+  {tag:"响应状态码",q:"200/301/403/404/500 分别代表什么？",a:"200 成功；301 永久重定向；403 禁止访问；404 不存在；500 服务器内部错误。",doc:"RFC 9110 · 状态码"},
+  {tag:"请求头",q:"User-Agent 有什么用？",a:"标识客户端类型，服务器据此返回不同内容；爬虫常伪装 UA，但伪装不等于合规。",doc:"RFC 9110 · 请求头"},
+  {tag:"URL 与查询串",q:"urlparse 和 parse_qs 各返回什么？",a:"urlparse 把 URL 拆成 scheme/netloc/path/query 等部分；parse_qs 把 query 解析成 {参数: [值列表]}，值永远是列表。",doc:"Python 官方文档 · urllib.parse"},
+  {tag:"HTML 解析",q:"BeautifulSoup 里 find 和 find_all 的区别？",a:"find 返回第一个匹配的 Tag；find_all 返回所有匹配的列表。",doc:"BeautifulSoup 文档 · 搜索文档树"},
+  {tag:"CSS 选择器",q:"soup.select('div.item > a') 选中什么？",a:"选中 class 含 item 的 div 的直接子元素 a，返回列表。",doc:"BeautifulSoup 文档 · CSS 选择器"},
+  {tag:"编码",q:"response.encoding 不设置会怎样？",a:"requests 可能按错误编码猜解，中文乱码；可显式 response.encoding = 'utf-8'。",doc:"requests 文档 · 响应内容"},
+  {tag:"robots 与合规",q:"robots.txt 的法律/道德地位？",a:"是爬虫约定，非强制技术限制；遵守它并控制频率是合规抓取的基础。",doc:"RFC 9309 · Robots 排除协议"},
+  {tag:"反爬应对",q:"请求频率过高常见后果？",a:"返回 429/403、IP 被封、要求验证码；应加延时、限速、遵守站点条款。",doc:"RFC 9110 · 429 Too Many Requests"},
+]},
+{ch:"M10",title:"数据分析",cards:[
+  {tag:"numpy 数组",q:"ndarray 和 list 的核心区别？",a:"ndarray 同类型、连续内存、支持向量化运算，比 list 快且省内存。",doc:"NumPy 文档 · ndarray"},
+  {tag:"数组运算",q:"a + 1 对数组做了什么？",a:"广播：对每个元素加 1，返回新数组；形状不兼容时抛 ValueError。",doc:"NumPy 文档 · 广播"},
+  {tag:"pandas Series",q:"Series 和 numpy 数组的区别？",a:"Series 带索引（label），支持按标签对齐运算；底层仍是 ndarray。",doc:"pandas 文档 · Series"},
+  {tag:"DataFrame",q:"df['a'] 和 df[['a']] 的区别？",a:"前者返回 Series，后者返回只含 a 列的 DataFrame。",doc:"pandas 文档 · 索引"},
+  {tag:"缺失值",q:"NaN 参与求和会怎样？",a:"默认被跳过（skipna=True），结果仍是数字；isna() 可定位缺失位置。",doc:"pandas 文档 · 缺失数据"},
+  {tag:"筛选与索引",q:"iloc 和 loc 的区别？",a:"iloc 按位置整数索引；loc 按标签索引（含右端点）。",doc:"pandas 文档 · 索引与选择"},
+  {tag:"分组聚合",q:"groupby 之后通常接什么？",a:"聚合函数（sum/mean/count）或 agg，得到每组一个结果。",doc:"pandas 文档 · groupby"},
+  {tag:"统计量",q:"describe() 输出哪些统计量？",a:"count、mean、std、min、25%/50%/75% 分位、max。",doc:"pandas 文档 · describe"},
+]},
+{ch:"M11",title:"进阶语法",cards:[
+  {tag:"迭代器",q:"可迭代对象和迭代器有什么区别？",a:"可迭代对象实现 __iter__；迭代器同时实现 __iter__ 和 __next__，且只能遍历一次。",doc:"Python 官方文档 · 迭代器类型"},
+  {tag:"生成器",q:"生成器和普通函数返回列表的区别？",a:"生成器用 yield 惰性产出，不一次性占内存；list(gen) 才会全部求值。",doc:"Python 官方文档 · 生成器"},
+  {tag:"装饰器",q:"装饰器本质是什么？",a:"接收函数、返回新函数的高阶函数；@deco 等价于 f = deco(f)。",doc:"Python 官方文档 · 函数定义 · 装饰器"},
+  {tag:"上下文管理器",q:"自定义上下文管理器要实现什么？",a:"__enter__ 返回资源、__exit__ 负责清理并决定是否吞掉异常。",doc:"Python 官方文档 · with 语句上下文管理器"},
+  {tag:"闭包",q:"闭包怎么修改外层变量？",a:"用 nonlocal 声明；否则赋值会创建新的局部变量。",doc:"Python 官方文档 · nonlocal"},
+  {tag:"推导式进阶",q:"带 if-else 的推导式怎么写？",a:"[x if x>0 else 0 for x in nums]：if 在前是取值分支，if 在后是过滤。",doc:"Python 官方文档 · 推导式"},
+  {tag:"类型注解",q:"注解会在运行时检查类型吗？",a:"不会，注解只是元数据（存于 __annotations__），需 mypy 等静态检查工具。",doc:"PEP 484 · 类型提示"},
+  {tag:"异常链",q:"raise ... from e 有什么用？",a:"显式保留原始异常为 __cause__，便于定位根因。",doc:"PEP 3134 · 异常链"},
+]},
+{ch:"M12",title:"综合实战",cards:[
+  {tag:"代码阅读",q:"读一段代码先看什么？",a:"先看输入输出与边界，再看分支与循环，最后确认可变对象是否被就地修改。",doc:"Python 官方文档 · 语言参考"},
+  {tag:"调试排错",q:"看到 Traceback 先看哪一行？",a:"先看最后一行异常类型与消息，再往上找第一个属于自己代码的帧。",doc:"Python 官方文档 · 错误与异常"},
+  {tag:"数据处理",q:"统计词频用什么结构？",a:"dict 或 collections.Counter；Counter 有 most_common(n) 直接取前 n。",doc:"Python 官方文档 · collections.Counter"},
+  {tag:"字符串处理",q:"split 和 splitlines 区别？",a:"split 按给定分隔符切（默认任意空白）；splitlines 按行切且保留换行语义。",doc:"Python 官方文档 · str.splitlines"},
+  {tag:"算法应用",q:"两数之和的最优解法？",a:"用哈希表存「目标值 − 当前值」的下标，一次遍历 O(n)。",doc:"LeetCode 1 · 两数之和"},
+  {tag:"文件处理",q:"逐行处理大文件的推荐写法？",a:"with open(...) as f: for line in f: —— 惰性迭代，不会一次性读入内存。",doc:"Python 官方文档 · 文件对象"},
+  {tag:"类设计",q:"什么时候该用类而不是函数？",a:"需要维护状态、封装多条相关操作、或表达一组同类实体时用类。",doc:"Python 官方文档 · 类"},
+  {tag:"综合输出",q:"print 的 sep 和 end 参数？",a:"sep 控制多参数分隔符（默认空格），end 控制结尾（默认换行）。",doc:"Python 官方文档 · print"},
 ]},
 ];
+
 
 </script>
 <script>
@@ -2574,23 +2680,41 @@ var BANK_VERSION = 2;
 var TOTAL_LEVELS = 16;
 var QUIZ_DATA = [
 /* ========== L1 第一行代码（DeepSeek 生成 · 读2 补2 找Bug2 选实现1 概念1） ========== */
-{m:"L1",kind:"read",tag:"print",q:"这段代码运行后，屏幕上一共显示几行文字？\n# 名片第一行\nprint(\"小明\")\nprint(\"大一新生\")",opts:["2 行","3 行","1 行","0 行，有注释就不会输出"],ans:0,doc:"注释不产生输出"},
-{m:"L1",kind:"read",tag:"引号",q:"运行这段代码，屏幕上显示的是什么？\nprint('Python')\nprint(\"Python\")",opts:["两行，都是 Python，不带引号","两行，第一行带单引号、第二行带双引号","只有一行 Python","报错，单引号和双引号不能混用"],ans:0,doc:"引号只是标记，不显示出来"},
-{m:"L1",kind:"blank",tag:"引号",q:"要输出：他说\"你好\"（屏幕上保留双引号），横线处应填？\nprint(____)",opts:["'他说\"你好\"'","\"他说\"你好\"\"","'他说'你好''","他说\"你好\""],ans:0,doc:"外面用单引号，里面就能放双引号"},
-{m:"L1",kind:"blank",tag:"注释",q:"想在代码里写一句给人看的说明「打印问候语」，又不影响运行，横线处应填？\n____ 打印问候语\nprint(\"你好\")",opts:["#","//","/*","--"],ans:0,doc:"Python 用 # 写单行注释"},
-{m:"L1",kind:"bug",tag:"引号",q:"下面哪一行代码会报错？",opts:["print(\"你好\")","print('你好')","print(\"你好')","print(\"你好\" )"],ans:2,doc:"左右引号必须成对且同一种"},
+{m:"L1",kind:"read",tag:"输入输出",q:"这段代码运行后，屏幕上一共显示几行文字？\n# 名片第一行\nprint(\"小明\")\nprint(\"大一新生\")",opts:["2 行","3 行","1 行","0 行，有注释就不会输出"],ans:0,doc:"注释不产生输出"},
+{m:"L1",kind:"read",tag:"字符串",q:"运行这段代码，屏幕上显示的是什么？\nprint('Python')\nprint(\"Python\")",opts:["两行，都是 Python，不带引号","两行，第一行带单引号、第二行带双引号","只有一行 Python","报错，单引号和双引号不能混用"],ans:0,doc:"引号只是标记，不显示出来"},
+{m:"L1",kind:"blank",tag:"字符串",q:"要输出：他说\"你好\"（屏幕上保留双引号），横线处应填？\nprint(____)",opts:["'他说\"你好\"'","\"他说\"你好\"\"","'他说'你好''","他说\"你好\""],ans:0,doc:"外面用单引号，里面就能放双引号"},
+{m:"L1",kind:"blank",tag:"注释与缩进",q:"想在代码里写一句给人看的说明「打印问候语」，又不影响运行，横线处应填？\n____ 打印问候语\nprint(\"你好\")",opts:["#","//","/*","--"],ans:0,doc:"Python 用 # 写单行注释"},
+{m:"L1",kind:"bug",tag:"字符串",q:"下面哪一行代码会报错？",opts:["print(\"你好\")","print('你好')","print(\"你好')","print(\"你好\" )"],ans:2,doc:"左右引号必须成对且同一种"},
 {m:"L1",kind:"bug",tag:"字符串",q:"运行 print(你好) 会发生什么？",opts:["屏幕输出 你好","报错：NameError，你好 不是已定义的变量","屏幕输出 \"你好\"，带引号","屏幕输出一个空行"],ans:1,doc:"文字要放进引号里才是字符串"},
-{m:"L1",kind:"pick",tag:"print",q:"【选实现】任务：屏幕上分三行显示 小明、18 岁、爱打篮球。哪段代码能做到？",opts:["print(\"小明\")\nprint(\"18 岁\")\nprint(\"爱打篮球\")","print(\"小明\" \"18 岁\" \"爱打篮球\")","print(\"小明\"\nprint(\"18 岁\"\nprint(\"爱打篮球\")","print(\"小明\", \"18 岁\", \"爱打篮球\")"],ans:0,doc:"想分几行就用几个 print"},
+{m:"L1",kind:"pick",tag:"输入输出",q:"【选实现】任务：屏幕上分三行显示 小明、18 岁、爱打篮球。哪段代码能做到？",opts:["print(\"小明\")\nprint(\"18 岁\")\nprint(\"爱打篮球\")","print(\"小明\" \"18 岁\" \"爱打篮球\")","print(\"小明\"\nprint(\"18 岁\"\nprint(\"爱打篮球\")","print(\"小明\", \"18 岁\", \"爱打篮球\")"],ans:0,doc:"想分几行就用几个 print"},
 {m:"L1",kind:"concept",tag:"字符串",q:"关于 print 和字符串，下面哪个说法正确？",opts:["字符串可以用单引号或双引号括起来","字符串只能用双引号，单引号一定报错","print 后面必须加分号","代码后面的注释也会被打印出来"],ans:0,doc:"单双引号等价"},
 /* ========== L2 变量与输入（DeepSeek 生成 · 读2 补2 找Bug2 选实现1 概念1） ========== */
-{m:"L2",kind:"read",tag:"input",q:"运行下面代码时输入 18，会发生什么？\nage = input(\"年龄：\")\nprint(age + 1)",opts:["显示 19","显示 181","报错：字符串不能和整数相加","显示 18"],ans:2,doc:"input 返回的一定是字符串"},
+{m:"L2",kind:"read",tag:"输入输出",q:"运行下面代码时输入 18，会发生什么？\nage = input(\"年龄：\")\nprint(age + 1)",opts:["显示 19","显示 181","报错：字符串不能和整数相加","显示 18"],ans:2,doc:"input 返回的一定是字符串"},
 {m:"L2",kind:"read",tag:"f-string",q:"运行下面代码，屏幕显示什么？\nname = \"小明\"\nprint(f\"你好，{name}\")",opts:["你好，小明","你好，{name}","你好，name","报错，f 不能写在引号前面"],ans:0,doc:"f-string 会把 {} 里的变量换成值"},
-{m:"L2",kind:"blank",tag:"int",q:"输入 18，要让下面代码输出 19，横线处应填？\nage = ____(input(\"年龄：\"))\nprint(age + 1)",opts:["int","str","input","print"],ans:0,doc:"int() 把字符串变成整数"},
+{m:"L2",kind:"blank",tag:"类型转换",q:"输入 18，要让下面代码输出 19，横线处应填？\nage = ____(input(\"年龄：\"))\nprint(age + 1)",opts:["int","str","input","print"],ans:0,doc:"int() 把字符串变成整数"},
 {m:"L2",kind:"blank",tag:"f-string",q:"要输出 小明 明年 19 岁，横线处应填？\nname = \"小明\"\nage = 18\nprint(____\"{name} 明年 {age + 1} 岁\")",opts:["f","r","b","str"],ans:0,doc:"f 前缀要贴在引号前面"},
-{m:"L2",kind:"bug",tag:"input",q:"下面的代码想算明年年龄，运行时却报错，问题出在哪？\nname = input(\"姓名：\")\nage = input(\"年龄：\")\nprint(f\"{name} 明年 {age + 1} 岁\")",opts:["age 还是字符串，不能和 1 相加","f-string 的 {} 里不能写表达式","变量不能叫 name","input 不能连续调用两次"],ans:0,doc:"先 int(age) 再计算"},
-{m:"L2",kind:"bug",tag:"变量",q:"下面哪一行会报错？",opts:["name = \"小明\"","\"name\" = \"小明\"","age = 18","score = 95.5"],ans:1,doc:"等号左边必须是变量名，不能加引号"},
+{m:"L2",kind:"bug",tag:"输入输出",q:"下面的代码想算明年年龄，运行时却报错，问题出在哪？\nname = input(\"姓名：\")\nage = input(\"年龄：\")\nprint(f\"{name} 明年 {age + 1} 岁\")",opts:["age 还是字符串，不能和 1 相加","f-string 的 {} 里不能写表达式","变量不能叫 name","input 不能连续调用两次"],ans:0,doc:"先 int(age) 再计算"},
+{m:"L2",kind:"bug",tag:"变量与赋值",q:"下面哪一行会报错？",opts:["name = \"小明\"","\"name\" = \"小明\"","age = 18","score = 95.5"],ans:1,doc:"等号左边必须是变量名，不能加引号"},
 {m:"L2",kind:"pick",tag:"f-string",q:"【选实现】任务：依次输入 小明 和 18，输出 小明 明年 19 岁。哪段代码能做到？",opts:["name = input()\nage = int(input())\nprint(f\"{name} 明年 {age+1} 岁\")","name = input()\nage = input()\nprint(f\"{name} 明年 {age+1} 岁\")","name = input()\nage = int(input())\nprint(\"{name} 明年 {age+1} 岁\")","name = input()\nage = int(input())\nprint(name + \"明年\" + age + 1)"],ans:0,doc:"转换 + f 前缀 缺一不可"},
-{m:"L2",kind:"concept",tag:"input",q:"关于 input()，下面哪个说法正确？",opts:["它返回的永远是字符串，要算数得先转换","它返回的数字可以直接做加法","它只能调用一次，第二次会报错","它必须写在 print 里面才能用"],ans:0,doc:"input 一律返回 str"},
+{m:"L2",kind:"concept",tag:"输入输出",q:"关于 input()，下面哪个说法正确？",opts:["它返回的永远是字符串，要算数得先转换","它返回的数字可以直接做加法","它只能调用一次，第二次会报错","它必须写在 print 里面才能用"],ans:0,doc:"input 一律返回 str"},
+/* ========== L3 数字与计算（读2 补2 找Bug2 选实现1 概念1） ========== */
+{m:"L3",kind:"read",tag:"数值与运算符",q:"运行这段代码，屏幕显示什么？\nprint(17 // 5)\nprint(17 % 5)",opts:["第一行 3，第二行 2","第一行 3.4，第二行 2","第一行 2，第二行 3","第一行 3，第二行 3.4"],ans:0,doc:"// 求商，% 求余"},
+{m:"L3",kind:"read",tag:"f-string",q:"运行这段代码，屏幕显示什么？\nscore = 87.456\nprint(f\"平均分：{score:.1f}\")",opts:["平均分：87.5","平均分：87.456","平均分：87","报错，.1f 不能写在 f-string 里"],ans:0,doc:"{:.1f} 表示保留一位小数"},
+{m:"L3",kind:"blank",tag:"类型转换",q:"要从输入里读入两个整数并相加，横线处应填？\na = int(input())\nb = ____(input())\nprint(a + b)",opts:["int","str","print","len"],ans:0,doc:"两个数都要转成整数"},
+{m:"L3",kind:"blank",tag:"f-string",q:"要输出 找零：3.50 元，横线处应填？\nchange = 3.5\nprint(f\"找零：____ 元\")",opts:["{change:.2f}","{change}","{change:.1f}","(change:.2f)"],ans:0,doc:"{:.2f} 固定保留两位小数"},
+{m:"L3",kind:"bug",tag:"类型转换",q:"下面的代码想算总价，结果却把单价重复了三遍，问题出在哪？\nprice = input(\"单价：\")\ncount = 3\nprint(price * count)",opts:["input 拿到的是字符串，应该先 float(price)","count 不能参与乘法","print 里不能写乘法","字符串不能乘以整数"],ans:0,doc:"字符串乘整数会重复字符串"},
+{m:"L3",kind:"bug",tag:"数值与运算符",q:"下面哪一行运行时会报错？",opts:["print(10 / 2)","print(10 // 0)","print(10 % 3)","print(10 * 2)"],ans:1,doc:"除数不能为 0"},
+{m:"L3",kind:"pick",tag:"f-string",q:"【选实现】任务：输入单价和数量，输出总价并保留两位小数。哪段代码能做到？",opts:["price = float(input())\ncount = int(input())\nprint(f\"{price*count:.2f}\")","price = input()\ncount = input()\nprint(f\"{price*count:.2f}\")","price = float(input())\ncount = int(input())\nprint(f\"{price*count}\")","price = float(input())\ncount = int(input())\nprint(price*count:.2f)"],ans:0,doc:"先转换类型，再用 :.2f 格式化"},
+{m:"L3",kind:"concept",tag:"数值与运算符",q:"关于 / 和 //，下面哪个说法正确？",opts:["/ 得到小数，// 得到向下取整的结果","/ 和 // 没有区别","// 会把结果四舍五入","/ 只能算整数"],ans:0,doc:"/ 是除法，// 是整除"},
+/* ========== L4 布尔与 if（读2 补2 找Bug2 选实现1 概念1） ========== */
+{m:"L4",kind:"read",tag:"布尔与比较",q:"运行这段代码，屏幕显示什么？\nage = 18\nprint(age >= 18)",opts:["True","False","18","报错"],ans:0,doc:"比较表达式的结果是布尔值"},
+{m:"L4",kind:"read",tag:"if/elif",q:"运行这段代码，屏幕显示什么？\nscore = 60\nif score >= 60:\n    print(\"及格\")\nelse:\n    print(\"不及格\")",opts:["及格","不及格","60","什么都不显示"],ans:0,doc:"60 >= 60 成立，执行 if 分支"},
+{m:"L4",kind:"blank",tag:"布尔与比较",q:"要判断年龄是否在 18 到 60 岁之间（含 18 和 60），横线处应填？\nif ____:\n    print(\"成年\")",opts:["18 <= age <= 60","18 < age < 60","age >= 18 or age <= 60","age = 18 and 60"],ans:0,doc:"Python 支持连续比较"},
+{m:"L4",kind:"blank",tag:"注释与缩进",q:"要让 print 属于 if 内部，横线处应填？\nif score >= 60:\n____print(\"及格\")",opts:["缩进 4 个空格","写一个 #","写一个分号","写一对大括号"],ans:0,doc:"Python 用缩进表示代码块"},
+{m:"L4",kind:"bug",tag:"布尔与比较",q:"下面的代码想判断是否成年，运行时却报错，问题出在哪？\nage = 20\nif age = 18:\n    print(\"成年\")",opts:["判断相等要用 ==，= 是赋值","age 不能和 18 比较","print 不能写在 if 里面","18 要加引号"],ans:0,doc:"= 赋值，== 判断相等"},
+{m:"L4",kind:"bug",tag:"注释与缩进",q:"下面的代码想判断是否及格，运行时却报错，问题出在哪？\nscore = 75\nif score >= 60:\nprint(\"及格\")",opts:["print 没有缩进，if 下面没有语句","score 不能是整数","if 后面不能写冒号","print 不能写中文"],ans:0,doc:"if 下面的代码必须缩进"},
+{m:"L4",kind:"pick",tag:"if/elif",q:"【选实现】已知 age 是整数，任务：达到 18 岁就输出 成年。哪段代码能做到？",opts:["if age >= 18:\n    print(\"成年\")","if age > 18:\n    print(\"成年\")","if age >= 18\n    print(\"成年\")","if age >= 18:\nprint(\"成年\")"],ans:0,doc:"条件后要冒号，下面要缩进"},
+{m:"L4",kind:"concept",tag:"注释与缩进",q:"关于 if 的缩进，下面哪个说法正确？",opts:["if 下面的语句必须缩进，通常 4 个空格","if 下面的语句不能缩进","缩进多少都行，只要和 print 对齐","if 后面必须加分号"],ans:0,doc:"缩进是 Python 语法的一部分"},
 ];
 
 </script>
@@ -2705,7 +2829,7 @@ function isLevelUnlocked(lv){
   if(lv <= 1) return true;
   return !!STATE.cleared[lv - 1];
 }
-var SAVE_VERSION = 4; /* 4：L1-L2 换为 DeepSeek 生成版，题序变化，旧错题本作废重来 */
+var SAVE_VERSION = 5; /* 5：恢复原 12 章 95 卡，卡片 ID 变化，旧进度/错题本作废重来 */
 var STATE = {
   starred:{}, wrongBook:{}, mastered:{}, love:0, name:"用户1",
   sched:{}, checkin:{}, cleared:{},
@@ -3899,7 +4023,7 @@ document.getElementById("sakuraRecenter").onclick = function(){
 var quizState = {level:1, list:[], idx:0, answers:[], startTime:0, pendingAnswer:undefined};
 function getQuestionsForLevel(lv){
   var start = (lv - 1) * CARDS_PER_LEVEL;
-  /* 最后不足 10 题的扩展关也照常出题；题库为空时返回空数组，由 startLevel 兜底 */
+  /* 最后不足 8 题的扩展关也照常出题；题库为空时返回空数组，由 startLevel 兜底 */
   lvSelectedBids = [];
   var out = BANK.slice(start, start + CARDS_PER_LEVEL).map(function(q, i){
     lvSelectedBids.push(start + i);
@@ -4074,10 +4198,12 @@ function finishLevel(){
   var right = quizState.answers.filter(function(a){return a.ok;}).length;
   var total = quizState.list.length;
   var allRight = right === total;
+  var passLine = Math.ceil(total * 0.75);
+  var passed = right >= passLine;
   var lv = quizState.level;
   var isWrongPractice = quizState.isWrongPractice === true;
   /* 错题重做没有关卡号：不写 cleared（否则会落盘 cleared["0"]）、不发育、不打卡 */
-  if(allRight && !isWrongPractice){
+  if(passed && !isWrongPractice){
     STATE.cleared[lv] = true;
     /* 只前进、不回退：重玩旧关不会把地图指针改回去 */
     bumpLevel(lv + 1);
@@ -4085,7 +4211,7 @@ function finishLevel(){
     markCheckin();
   }
   save();
-  renderResult(allRight, right, total, lv, elapsed);
+  renderResult(passed, allRight, right, total, lv, elapsed);
 }
 function explainFor(q){
   if(!q) return "";
@@ -4094,7 +4220,7 @@ function explainFor(q){
   }
   return q.doc || "回顾一下该知识点的定义与常见写法。";
 }
-function renderResult(allRight, right, total, lv, elapsed){
+function renderResult(passed, allRight, right, total, lv, elapsed){
   var rwrap = document.getElementById("rwrap");
   var wrongItems = quizState.answers.filter(function(a){return !a.ok;});
   var errHtml = "";
@@ -4114,7 +4240,7 @@ function renderResult(allRight, right, total, lv, elapsed){
   var mins = Math.floor(elapsed/60);
   var secs = elapsed%60;
   var html = ''
-  + '<div class="rtitle">'+(isWrong ? (allRight?"🎉 错题全部答对！":"💪 还有错题，再来一次") : (allRight?"🎉 全部答对，通关！":"💪 差一点，再来一次"))+'</div>'
+  + '<div class="rtitle">'+(isWrong ? (passed?"🎉 错题重做通过！":"💪 还有错题，再来一次") : (allRight?"🎉 全部答对，通关！":(passed?"🎉 通过本关！":"💪 差一点，再来一次")))+'</div>'
   + '<div class="rdata">'
   +   '<div class="rnum">'
   +     '<div class="lbl">答对题数</div>'
@@ -4122,23 +4248,23 @@ function renderResult(allRight, right, total, lv, elapsed){
   +     '<div class="sub">用时 '+mins+'分'+secs+'秒 · '+(isWrong ? '错题重做' : ('第 '+lv+' 关'))+'</div>'
   +   '</div>'
   + '</div>';
-  if(!allRight){
+  if(!passed){
     html += '<button class="retry" id="retryBtn">再来一次</button>';
   }
-  html += '<div class="rerr'+(allRight?' allright':'')+'">'
-       +   '<div class="rlabel">'+(allRight?"易错易混点（本关无）":"错误题目 / 易错易混点")+'</div>'
+  html += '<div class="rerr'+(wrongItems.length?'':' allright')+'">'
+       +   '<div class="rlabel">'+(wrongItems.length?"错误题目 / 易错易混点":"易错易混点（本关无）")+'</div>'
        +   '<div class="items">'+errHtml+'</div>'
        + '</div>';
-  if(allRight && isWrong){
+  if(passed && isWrong){
     html += '<button class="nextlevel" id="nextLevelBtn">完成错题重做，返回首页 →</button>';
-  } else if(allRight && lv < TOTAL_LEVELS){
+  } else if(passed && lv < TOTAL_LEVELS){
     /* 重玩旧关后不要把人带回旧进度：下一关取「本关 +1」和「当前进度」的较大值 */
     var contLv = Math.max(lv + 1, STATE.currentLevel);
     contLv = Math.min(contLv, TOTAL_LEVELS);
     html += '<button class="nextlevel" id="nextLevelBtn">'
           + (contLv === lv + 1 ? '进入第 ' + contLv + ' 关 →' : '回到第 ' + contLv + ' 关 →')
           + '</button>';
-  } else if(allRight){
+  } else if(passed){
     html += '<button class="nextlevel" id="nextLevelBtn">已完成全部关卡 →</button>';
   }
   rwrap.innerHTML = html;
@@ -4148,7 +4274,7 @@ function renderResult(allRight, right, total, lv, elapsed){
     if(isWrong){ go("home"); }
     else { renderLevelMap(); go("levels"); }
   };
-  if(!allRight){
+  if(!passed){
     document.getElementById("retryBtn").onclick = function(){
       if(quizState.isWrongPractice) startWrongPractice(quizState.wrongKeys);
       else startLevel(lv);
@@ -4163,7 +4289,7 @@ function renderResult(allRight, right, total, lv, elapsed){
     };
   }
   go("result");
-  if(typeof window.__afterRenderResult__ === "function") window.__afterRenderResult__(allRight);
+  if(typeof window.__afterRenderResult__ === "function") window.__afterRenderResult__(passed);
 }
 
 /* ===================== 聊天 ===================== */
@@ -4176,7 +4302,7 @@ function localReply(text){
   if(/你好|hi|hello|在吗/i.test(s)) return "你好呀 🌸 有什么想学的吗？";
   if(/装饰器/.test(s)) return "装饰器本质是接收函数、返回新函数的高阶函数，用来不改原函数地加功能。\n\n@log\ndef f(): ...\n等价于 f = log(f)";
   if(/列表.*元组|元组.*列表/.test(s)) return "列表 list 可变、用方括号；元组 tuple 不可变、用圆括号。元组更省内存，能做字典键。";
-  if(/出.*题|练习|考我/.test(s)) return "去关卡地图挑战一下？每关 10 题，全对才能解锁下一关。";
+  if(/出.*题|练习|考我/.test(s)) return "去关卡地图挑战一下？每关 8 题，答对 6 题就能解锁下一关。";
   if(/报错|error/i.test(s)) return "把完整的 Traceback 那几行发我，我帮你看是哪行、为什么。";
   if(/循环|for|while/.test(s)) return "for 适合遍历已知对象；while 适合条件驱动。注意 while 要让循环变量有机会改变，否则死循环。";
   if(/函数|def/.test(s)) return "用 def 定义。return 返回结果并立即结束；无 return 默认返回 None。";
@@ -5019,7 +5145,7 @@ document.addEventListener("DOMContentLoaded", function(){
   document.getElementById("setClose").onclick = function(){ go("home"); };
   document.getElementById("levelsBack").onclick = function(){ go("home"); };
   document.getElementById("levelsRule").onclick = function(){
-    toast("点地图上的数字开始测试；通过上一关才能解锁下一关，全部答对即通关。");
+    toast("点地图上的数字开始测试；通过上一关才能解锁下一关，答对 6 题即通关。");
   };
   document.getElementById("startLevelBtn").onclick = function(){ startLevel(STATE.currentLevel); };
   document.getElementById("quizBack").onclick = function(){
@@ -5481,10 +5607,10 @@ document.addEventListener("DOMContentLoaded", function(){
       if(first){ applyHomeBg(first.src, first.id); saveSel({k:first.id}); }
     };
 
-    window.__afterRenderResult__ = function(allRight){
+    window.__afterRenderResult__ = function(passed){
       initResultGarden();
       var rw = getEl("rwrap");
-      if(rw) rw.classList.toggle("is-pass", !!allRight);
+      if(rw) rw.classList.toggle("is-pass", !!passed);
     };
 
     if(getEl("result").classList.contains("on")){
