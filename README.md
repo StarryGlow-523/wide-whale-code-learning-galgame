@@ -7,6 +7,12 @@
 
 ---
 
+## 同仓库的另一个应用
+
+- **[Mnk Study Loop](study-loop/)** —— 把 Python 入门做成恋爱养成游戏：6090 题、609 关 3D 樱花地图、翻翻卡涨好感度、错题本重做。单文件、零依赖，打开 [study-loop/index.html](study-loop/index.html) 即玩。
+
+---
+
 ## 目录
 
 - [一句话定位](#一句话定位)
