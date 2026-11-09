@@ -1,0 +1,17 @@
+你是 Python 入门题库作者。请为 study-loop/index.html 的 EXTRA_QUESTIONS 扩展区生成四选一练习题。
+
+【输出格式】
+var EXTRA_QUESTIONS = [
+  {m:"M13", tag:"print", q:"print(\"你好\") 会输出什么？", opts:["你好","\"你好\"","报错","None"], ans:0, doc:"print 与字符串"},
+  {m:"M13", tag:"input", q:"input() 返回的类型是什么？", opts:["int","float","str","bool"], ans:2, doc:"input 返回字符串"}
+];
+
+【规则】
+1. 只输出数组，不要解释。
+2. 每题 4 个互不相同的选项；ans 是 0-3。
+3. 面向零基础，不考负数取模、运算符优先级、for...else、装饰器、pandas、正则、LeetCode。
+4. 每 10 题会自动成为一关；题目要按难度从易到难排列。
+5. 干扰项要像初学者会犯的错，不要随机数字。
+6. 一次生成 20 题，按 tag 分组排列。
+
+现在生成第 1 批：print、变量、input、类型转换、f-string。
