@@ -2823,6 +2823,42 @@ var QUIZ_DATA = [
 {m:"L16",kind:"bug",tag:"函数定义",q:"下面的 add_item 想把待办加进清单，运行后清单还是空的，问题出在哪？\ndef add_item(title):\n    new_todos = todos + [title]\nadd_item(\"写作业\")",opts:["title 要加引号", "函数里造了一个新列表，应该用 todos.append(title)", "def 后面少了冒号", "add_item 不能被调用"],ans:1,doc:"todos + [x] 生成新列表，原列表没变"},
 {m:"L16",kind:"pick",tag:"while 循环",q:"【选实现】任务：菜单循环：输入 a 添加，输入 q 退出。哪段代码能做到？",opts:["while True:\n    cmd = input()\n    if cmd == \"q\": continue\n    if cmd == \"a\": add_item()", "cmd = input()\nwhile cmd != \"q\":\n    add_item()", "while True:\n    cmd = input()\n    if cmd == \"q\": break\n    if cmd == \"a\": add_item()", "for cmd in [\"a\", \"q\"]:\n    if cmd == \"q\": break"],ans:2,doc:"循环里读命令，q 就 break"},
 {m:"L16",kind:"concept",tag:"列表",q:"设计待办程序的数据结构，下面哪种最合适？",opts:["只用一个大字符串", "用 10 个独立变量", "字典套字典套字典，层数越多越好", "列表套字典：每条待办是 {标题, 是否完成}"],ans:3,doc:"列表管顺序，字典管字段"},
+/* ========== L17 字符串与切片（读2 补2 找Bug2 选实现1 概念1） ========== */
+{m:"L17",kind:"read",tag:"字符串",q:"运行这段代码，屏幕显示什么？\ns = \"hello\"\nprint(s[1])",opts:["e", "h", "he", "报错"],ans:0,doc:"下标 1 是第二个字符"},
+{m:"L17",kind:"read",tag:"切片",q:"运行这段代码，屏幕显示什么？\ns = \"abcdef\"\nprint(s[1:4])",opts:["abc", "abcd", "bcd", "bcde"],ans:2,doc:"切片左闭右开：下标 1 到 3"},
+{m:"L17",kind:"blank",tag:"切片",q:"要把字符串倒过来，横线处应填？\ns = \"abc\"\nprint(s[____])",opts:["0:2", "1:", "::", "::-1"],ans:3,doc:"步长 -1 表示从后往前走"},
+{m:"L17",kind:"blank",tag:"字符串",q:"要去掉用户输入两端的空格，横线处应填？\nname = input().____()",opts:["trim", "strip", "cut", "clean"],ans:1,doc:"Python 里叫 strip"},
+{m:"L17",kind:"bug",tag:"字符串",q:"下面的代码想把首字母改成大写，运行时却报错，问题出在哪？\ns = \"hello\"\ns[0] = \"H\"\nprint(s)",opts:["下标 0 不能用来改", "要写成 s(0)", "字符串不能改单个字符，只能生成新串", "hello 太短了"],ans:2,doc:"字符串不可变，可以 s = \"H\" + s[1:]"},
+{m:"L17",kind:"bug",tag:"字符串",q:"下面的代码想拼出一句话，运行时却报错，问题出在哪？\nage = 18\nprint(\"我今年\" + age + \"岁\")",opts:["age 是整数，要先 str(age) 再拼接", "print 里不能写两个加号", "字符串里不能写中文", "18 要加引号"],ans:0,doc:"字符串只能和字符串相加"},
+{m:"L17",kind:"pick",tag:"字符串",q:"【选实现】任务：文件名 name = \"report.pdf\"，取出后缀 pdf 并输出。哪段代码能做到？",opts:["name = \"report.pdf\"\nprint(name.split(\".\")[0])", "name = \"report.pdf\"\nprint(name.split(\".\")[-1])", "name = \"report.pdf\"\nprint(name[-3:0])", "name = \"report.pdf\"\nprint(name.split(\".\")[2])"],ans:1,doc:"split(\".\") 后取最后一段"},
+{m:"L17",kind:"concept",tag:"字符串",q:"关于字符串不可变，下面哪个说法正确？",opts:["s[0] = \"x\" 可以改首字符", "字符串可以直接修改内容", "replace 会把原字符串改掉", "字符串的方法都返回新串，原串不变"],ans:3,doc:"想改只能造一个新串"},
+/* ========== L18 进阶数据结构（读2 补2 找Bug2 选实现1 概念1） ========== */
+{m:"L18",kind:"read",tag:"元组",q:"运行这段代码，屏幕显示什么？\nt = (10, 20, 30)\nprint(t[1])",opts:["10", "20", "30", "报错"],ans:1,doc:"元组和列表一样按下标取"},
+{m:"L18",kind:"read",tag:"解包",q:"运行这段代码，屏幕显示什么？\na, b = 1, 2\na, b = b, a\nprint(a, b)",opts:["2 1", "1 2", "1 1", "报错"],ans:0,doc:"a, b = b, a 直接交换两个变量"},
+{m:"L18",kind:"blank",tag:"集合",q:"要快速去掉列表里的重复项，横线处应填？\nnums = [1, 1, 2, 2, 3]\nunique = ____(nums)",opts:["list", "dict", "set", "tuple"],ans:2,doc:"set 自动去重"},
+{m:"L18",kind:"blank",tag:"推导式",q:"要生成每个数的两倍，横线处应填？\nnums = [1, 2, 3]\ndoubles = [____ for x in nums]",opts:["x", "nums * 2", "x + x + x", "x * 2"],ans:3,doc:"推导式左边写对每个元素做什么"},
+{m:"L18",kind:"bug",tag:"元组",q:"下面的代码想改元组的第一项，运行时却报错，问题出在哪？\nt = (1, 2)\nt[0] = 9",opts:["元组不能改元素，要改用列表", "下标 0 越界了", "9 要写成字符串", "t 要先打印再改"],ans:0,doc:"元组创建后内容就固定了"},
+{m:"L18",kind:"bug",tag:"集合",q:"下面的代码想把几组数放进集合，运行时却报错，问题出在哪？\ns = {[1, 2], [3]}",opts:["集合要加引号", "列表不能放进集合，集合元素必须可哈希", "集合里最多两个元素", "要改用圆括号"],ans:1,doc:"列表不可哈希，可换成元组"},
+{m:"L18",kind:"pick",tag:"推导式",q:"【选实现】任务：生成 [1, 2, 3] 的平方列表 [1, 4, 9] 并输出。哪段代码能做到？",opts:["nums = [1, 2, 3]\nprint([x*2 for x in nums])", "nums = [1, 2, 3]\nsquares = []\nfor x in nums: squares + x*x", "nums = [1, 2, 3]\nprint([x*x for x in nums if x > 1])", "nums = [1, 2, 3]\nprint([x*x for x in nums])"],ans:3,doc:"[表达式 for x in 列表]；+ 号不会把元素加进列表"},
+{m:"L18",kind:"concept",tag:"集合",q:"关于集合 set，下面哪个说法正确？",opts:["集合里的元素可以重复", "集合可以按下标取元素", "集合自动去重且没有顺序", "集合一定比列表慢"],ans:2,doc:"去重、无序、元素必须可哈希"},
+/* ========== L19 函数进阶（读2 补2 找Bug2 选实现1 概念1） ========== */
+{m:"L19",kind:"read",tag:"参数与默认值",q:"运行这段代码，屏幕显示什么？\ndef f(x, y=2):\n    return x + y\nprint(f(3))",opts:["3", "报错", "5", "2"],ans:2,doc:"y 没传就用默认值 2"},
+{m:"L19",kind:"read",tag:"递归",q:"运行这段代码，屏幕依次显示什么？\ndef f(n):\n    if n == 0: return\n    print(n)\n    f(n - 1)\nf(3)",opts:["3、2、1", "1、2、3", "3", "一直打印停不下来"],ans:0,doc:"每次 n 减 1，减到 0 就停"},
+{m:"L19",kind:"blank",tag:"参数与默认值",q:"要让打招呼的话默认为 你好，横线处应填？\ndef greet(name, greeting=____):\n    print(greeting + \", \" + name)",opts:["name", "\"你好\"", "greeting", "print"],ans:1,doc:"默认值直接写在参数后面"},
+{m:"L19",kind:"blank",tag:"lambda",q:"要按单词长度排序，横线处应填？\nwords = [\"bb\", \"a\", \"ccc\"]\nwords.sort(key=____)",opts:["str", "x", "length", "len"],ans:3,doc:"key=len 表示按长度排"},
+{m:"L19",kind:"bug",tag:"参数与默认值",q:"下面的代码第二次调用想得到 [2]，实际却是 [1, 2]，问题出在哪？\ndef add(x, lst=[]):\n    lst.append(x)\n    return lst\nprint(add(1))\nprint(add(2))",opts:["append 要写成 add", "默认列表只创建一次，两次调用共享同一个列表", "print 不能连续写", "变量名 lst 重复了"],ans:1,doc:"可变默认值要写成 lst=None 再在函数里建"},
+{m:"L19",kind:"bug",tag:"递归",q:"下面的递归函数运行到一半报错 RecursionError，问题出在哪？\ndef f(n):\n    print(n)\n    f(n - 1)\nf(3)",opts:["没有终止条件，会一直递归下去直到超限", "print 的位置不对", "n - 1 要写成 n--", "递归函数里不能打印"],ans:0,doc:"递归必须有一个能停下来的出口"},
+{m:"L19",kind:"pick",tag:"高阶函数",q:"【选实现】任务：把 [\"1\", \"2\", \"3\"] 变成整数列表 [1, 2, 3] 并输出。哪段代码能做到？",opts:["strs = [\"1\", \"2\", \"3\"]\nnums = map(int, strs)\nprint(nums)", "strs = [\"1\", \"2\", \"3\"]\nprint(int(strs))", "strs = [\"1\", \"2\", \"3\"]\nnums = list(map(int, strs))\nprint(nums)", "strs = [\"1\", \"2\", \"3\"]\nnums = list(map(str, strs))\nprint(nums)"],ans:2,doc:"map 返回惰性迭代器，要套 list()"},
+{m:"L19",kind:"concept",tag:"lambda",q:"关于 lambda 匿名函数，下面哪个说法正确？",opts:["lambda 里可以写多行代码", "lambda 必须写 return", "lambda 就是普通函数换个名字", "lambda 只能写一个表达式"],ans:3,doc:"适合 sort 的 key 这种小场景"},
+/* ========== L20 面向对象入门（读2 补2 找Bug2 选实现1 概念1） ========== */
+{m:"L20",kind:"read",tag:"类与实例",q:"运行这段代码，屏幕显示什么？\nclass Dog:\n    def __init__(self, name):\n        self.name = name\nd = Dog(\"旺财\")\nprint(d.name)",opts:["旺财", "name", "Dog", "报错"],ans:0,doc:"__init__ 把名字存到实例上"},
+{m:"L20",kind:"read",tag:"继承",q:"运行这段代码，屏幕显示什么？\nclass Animal:\n    def speak(self):\n        return \"叫\"\nclass Dog(Animal):\n    pass\nprint(Dog().speak())",opts:["报错", "叫", "None", "pass"],ans:1,doc:"子类自动继承父类的方法"},
+{m:"L20",kind:"blank",tag:"构造方法",q:"要让 Dog(\"旺财\") 创建对象时自动存名字，横线处应填？\nclass Dog:\n    def ____(self, name):\n        self.name = name",opts:["init", "new", "create", "__init__"],ans:3,doc:"构造方法名固定为 __init__"},
+{m:"L20",kind:"blank",tag:"继承",q:"要让 Cat 继承 Animal 的方法，横线处应填？\nclass Cat(____):\n    pass",opts:["cat", "self", "Animal", "object"],ans:2,doc:"括号里写父类名"},
+{m:"L20",kind:"bug",tag:"构造方法",q:"下面的代码创建 Dog 时报错，问题出在哪？\nclass Dog:\n    def __init__(name):\n        self.name = name",opts:["__init__ 的第一个参数必须是 self", "name 不能用两次", "类里不能写赋值", "Dog 这个名字不合法"],ans:0,doc:"self 代表刚创建出来的对象自己"},
+{m:"L20",kind:"bug",tag:"类与实例",q:"下面的代码想打印狗的名字，运行时却报 NameError，问题出在哪？\nclass Dog:\n    def __init__(self, name):\n        self.name = name\nd = Dog(\"旺财\")\nprint(name)",opts:["print 缩进错了", "Dog 不能接收参数", "name 只存在于函数里，要写成 d.name", "__init__ 拼写错误"],ans:2,doc:"名字存在实例上，用 d.name 取"},
+{m:"L20",kind:"pick",tag:"类与实例",q:"【选实现】任务：定义 Dog 类，创建一只叫 旺财 的狗并打印它的名字。哪段代码能做到？",opts:["class Dog:\n    def __init__(self, name):\n        name = name\nprint(Dog(\"旺财\").name)", "class Dog:\n    def __init__(self, name):\n        self.name = name\nprint(Dog(\"旺财\").name)", "class Dog:\n    def __init__(self, name):\n        self.name = name\nprint(Dog.name)", "class Dog:\n    def __init__(name):\n        self.name = name\nprint(Dog(\"旺财\").name)"],ans:1,doc:"self.name 存到实例上，再通过实例取"},
+{m:"L20",kind:"concept",tag:"继承",q:"关于继承，下面哪个说法正确？",opts:["子类必须把父类的方法全部重写一遍", "继承就是把代码复制粘贴一份", "子类不能用父类的方法", "子类自动拥有父类的方法，还能加自己的"],ans:3,doc:"继承用来复用和扩展"},
 ];
 
 </script>
