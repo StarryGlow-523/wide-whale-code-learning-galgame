@@ -4440,6 +4440,83 @@ function renderResult(passed, allRight, right, total, lv, elapsed){
 var chatBody = document.getElementById("chatBody");
 var chatInput = document.getElementById("chatInput");
 var chatBusy = false;
+
+/* ===================== AI 接入层（Provider 可切换） ===================== */
+/* mode: "local" 本地预设回答 | "proxy" 自有代理 | "byok" 用户自带 Key
+   预留 C 方案：只需 setAI({mode:"byok",baseUrl:"https://...",apiKey:"...",model:"..."})
+   不调用时行为与原来完全一致。 */
+var AI_CONFIG = {
+  mode: "local",
+  baseUrl: "",
+  apiKey: "",
+  model: "",
+  timeout: 12000,
+  historyLimit: 8,
+  system: "你是学习应用里的答疑助手 Lune。用中文回答，语气轻松，控制在 120 字以内；只聊 Python 入门相关问题；不贴大段代码，最多给一个三行以内的例子；不确定就直说。"
+};
+(function loadAI(){
+  try{
+    var raw = localStorage.getItem("mnk_ai");
+    if(!raw) return;
+    var o = JSON.parse(raw);
+    for(var k in AI_CONFIG){
+      if(o[k] !== undefined && o[k] !== null) AI_CONFIG[k] = o[k];
+    }
+  }catch(e){}
+})();
+function setAI(patch){
+  if(patch) for(var k in patch){ if(k in AI_CONFIG) AI_CONFIG[k] = patch[k]; }
+  try{ localStorage.setItem("mnk_ai", JSON.stringify(AI_CONFIG)); }catch(e){}
+  return AI_CONFIG;
+}
+window.setAI = setAI;
+window.AI_CONFIG = AI_CONFIG;
+function aiOn(){ return AI_CONFIG.mode && AI_CONFIG.mode !== "local"; }
+function aiHistory(sid){
+  var ses = (typeof findChatSession === "function") ? findChatSession(sid) : null;
+  var msgs = (ses && ses.msgs) ? ses.msgs : [];
+  var out = [];
+  msgs.slice(-AI_CONFIG.historyLimit).forEach(function(m){
+    if(!m || !m.text) return;
+    out.push({ role: m.who === "me" ? "user" : "assistant", content: String(m.text).slice(0, 800) });
+  });
+  return out;
+}
+async function aiReply(text, sid){
+  if(!aiOn() || !AI_CONFIG.baseUrl) return null;
+  var url = AI_CONFIG.baseUrl;
+  if(!/^https?:\/\//.test(url) && url.charAt(0) !== "/") url = "/" + url;
+  if(location.protocol === "https:" && url.indexOf("http://") === 0){
+    throw new Error("HTTPS 页面无法调用 http 接口（混合内容），请改用 https 代理");
+  }
+  var hist = aiHistory(sid);
+  if(hist.length && hist[hist.length-1].role === "user" && hist[hist.length-1].content === text) hist.pop();
+  var msgs = [{ role: "system", content: AI_CONFIG.system }].concat(hist).concat([{ role: "user", content: text }]);
+  var headers = { "Content-Type": "application/json" };
+  if(AI_CONFIG.apiKey) headers.Authorization = "Bearer " + AI_CONFIG.apiKey;
+  var ctl = new AbortController();
+  var timer = setTimeout(function(){ ctl.abort(); }, AI_CONFIG.timeout);
+  var t0 = Date.now();
+  try{
+    var r = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify({ model: AI_CONFIG.model || "default", messages: msgs, max_tokens: 400, temperature: 0.6 }),
+      signal: ctl.signal
+    });
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    var j = await r.json();
+    var c = j && j.choices && j.choices[0] && j.choices[0].message ? j.choices[0].message.content : "";
+    c = String(c || "").trim();
+    if(!c) throw new Error("空回复");
+    window.__lastAI = { source: "ai", mode: AI_CONFIG.mode, ms: Date.now() - t0 };
+    return c;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+window.aiReply = aiReply;
+
 function localReply(text){
   var s = text.trim();
   if(!s) return "把问题打出来吧～";
@@ -4486,10 +4563,22 @@ async function sendMsg(){
   chatBusy = true;
   var tp = addTyping();
   try{
-    await new Promise(function(r){ setTimeout(r, 650 + Math.random()*500); });
+    var reply = null;
+    if(aiOn()){
+      try{
+        reply = await aiReply(t, sid);
+      }catch(e){
+        console.warn("[ai] 调用失败，回退本地回答：", (e && e.message) || e);
+        reply = null;
+      }
+    }
+    if(!reply){
+      await new Promise(function(r){ setTimeout(r, 650 + Math.random()*500); });
+      reply = localReply(t);
+      window.__lastAI = { source: "local", mode: AI_CONFIG.mode || "local" };
+    }
     tp.remove();
     tp = null;
-    var reply = localReply(t);
     if(STATE.chatCurrent === sid){
       addMsg(reply, "bot");
     } else {
