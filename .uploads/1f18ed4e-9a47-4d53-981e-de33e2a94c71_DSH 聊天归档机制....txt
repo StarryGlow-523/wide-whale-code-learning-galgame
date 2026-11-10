@@ -1,0 +1,500 @@
+DSH 聊天归档机制分析 + HTML AI 聊天应用移植方案
+读者：正在维护一个「HTML + AI 聊天」应用的 AI agent。 本文前半是 DSH（DeepSeek Harness）里「归档」机制的实测拆解，后半是把它落到你的应用里的最小可行方案（数据模型 / 交互 / 代码 / 测试）。 先给结论：DSH 的「归档」不是插件，是工作区核心的内置能力。 语义是「从列表隐藏 + 禁止继续运行 + 可原位恢复」——不是删除、不是移动文件夹、也不是压缩上下文。
+
+0. 先分清三种「归档」
+「聊天记录归档」至少有三种意思，实现成本差一个数量级。先让用户确认他要哪一种：
+
+用户按下「归档」后期待发生什么	DSH 里的对应物	要不要做
+会话从列表消失，数据还在，可恢复	dsh-workspace 的会话归档（内置）	✅ 本文 1–6 章
+会话变短、AI 仍记得旧事	billion-context 插件的上下文折叠	可选，第二阶段（第 7 章）
+打包成 zip 下载	dsh-better-sidebar 的 archiveBuild	❌ 和聊天记录无关
+判定问题（直接问用户）：「归档之后，这条对话还能不能点开继续聊？」
+
+「不能，要恢复才能聊」→ DSH 的做法（第 1–6 章），实现最简单。
+「能看不能发」→ 同一套数据模型，多一个只读态（第 5.5 节有分支）。
+「能继续聊，只是不显示」→ 这其实是「隐藏」，不是归档；建议别叫归档，语义会混。
+1. 事实核对：归档不是插件
+在本机 DSH 安装目录与 web profile 的 30 个已装插件里逐包搜索：
+
+主包 dsh/lib/ 没有 archive 字样；
+全部插件里没有名为 archive / 归档 的插件；
+grep -r "archiveSession" 只命中 7 个核心包。
+所以「dsh 里面归档的插件」这个说法不成立。真正实现它的是四件套：
+
+层	包	职责
+持久化 + 规则	dsh-workspace	维护 archivedSessionIds，校验活跃工作，写归档集合
+RPC	dsh-api-workspace-controller	暴露 workspace.archiveSession / unarchiveSession
+准入闸	dsh-api-session-controller	归档会话的 agent/pre-step 一律拒绝
+UI	dsh-client-ui-workspace	菜单 / 悬停按钮 / 三态过滤 / 确认框 / 撤销 toast
+数据流：
+
+代码块
+
+
+用户点归档
+  → UI 调 workspace.archiveSession({sessionId[, stopActivity]})
+  → controller 转给 workspaceRegistry.archiveSession
+  → registry 检查会话存在、检查活跃工作
+  → 一次持久化写入：archivedSessionIds += id，同时 pinnedSessionIds -= id
+  → follow 流推给所有客户端：{type:'archived', archivedSessionIds:[...]}
+  → 各端重算 Set，列表按 archivedFilter 过滤
+注意最后一步：服务端不删任何东西，列表过滤发生在客户端。 归档集合是「视图层开关」，不是数据搬迁。
+
+2. 语义与不变量（先定规则，再写代码）
+2.1 用户可感知的语义（DSH README 原文）
+「当会话不应再出现在分组中时隐藏它：它会从可见列表中消失，但其会话、历史与在项目中的位置都保持不变。」 「恢复它：它会回到它项目下记录的位置；不属于任何项目时回到 Ungrouped，并从一份正常收尾的日志继续对话。」
+
+三个关键词：隐藏 / 保留 / 原位恢复。
+
+2.2 七条不变量
+归档不删除：消息、附件、标题、项目归属、创建时间全部保留。
+归档保留排序槽位：会话在列表里的位置记账不动，恢复后回原位，不会跳到最上面。
+归档与置顶互斥：归档在同一次写里清掉置顶；已经归档的会话不允许再置顶（置顶接口报错）。恢复归档不恢复置顶。
+幂等：归档一个已归档的会话 = no-op；恢复一个未归档的会话 = no-op。
+有活跃工作默认拒绝：会话自己的回合、子代理、后台任务、定时提醒还在跑时，归档失败，并把「还在跑什么」列给用户；只有显式 stopActivity 才先停后归档。
+归档后不可运行：归档会话（含其子代理血统）的任何新模型步都会被拒绝；UI 里也不能打开，必须先恢复。
+过滤是视图态：归档不改变会话归属，也不影响「不属于任何项目」的会话。
+2.3 状态机
+代码块
+
+
+             archive（无活跃工作）
+        ┌───────────────────────────┐
+        ▼                           │
+   [ visible ]  ◄── unarchive ──  [ archived ]
+        │                           ▲
+        └── archive(stopActivity) ──┘
+              （有活跃工作：先确认，再停，再归档）
+visible 与 pinned 是两个正交标记，但 archived ⇒ !pinned。
+
+3. 数据契约
+3.1 DSH 的真实持久化形状
+dsh-workspace 的领域状态（version 2）：
+
+ts
+
+
+{
+  initialized: boolean,
+  defaultWorkspaceId?: string,
+  workspaceIds: string[],          // 分组顺序
+  archivedSessionIds: string[],    // 全局归档集合（默认 []）
+  pinnedSessionIds: string[],      // 全局置顶集合（默认 []，最近的在前）
+  pendingMutation?: { operation: 'create' | 'delete', workspaceId: string }
+}
+外加一张 workspaces 表：{ path, title, sessionIds[], createdAt, updatedAt }。 sessionIds 的顺序就是显示顺序——归档集合不参与它，这正是「恢复回原位」的实现方式。
+
+3.2 为什么 DSH 用「全局集合」而不是会话字段
+会话正文归 sessionPersistence 管，归档是「工作区视图」的事；往每个会话文件里写一个 archived 字段，等于为了一个列表开关重写全部历史文件。
+集合很小（通常几十个 id），一次整体读写足够快，还能整包推给客户端做对账。
+归档对「不属于任何项目」的会话也生效，放在注册表全局最自然。
+对你的应用怎么选：
+
+方案	适用	代价
+会话行加字段 archived: boolean	会话本来就存在一张表里（IndexedDB / localStorage 数组）	最简单；恢复位置要靠 order 字段自己保
+全局集合 archivedIds: string[]	会话列表和消息分两个 store，或会话由后端持有	多一次对账；好处是「归档」完全不影响会话行
+单机 HTML 应用建议字段方案：archived + archivedAt + order，一行会话自带全部状态，事务天然原子。
+
+3.3 写路径的三个分支
+archiveSession(sessionId, { stopActivity? })：
+
+已在归档集合 → 直接 return（幂等，不写、不问、不停）。
+会话不存在（live 和持久化里都没有）→ session/not-found。
+未传 stopActivity 且活跃工作非空 → workspace/session-active，details.activity 形如：
+json
+
+
+[
+  { "kind": "turn",     "items": [{ "id": "s_123" }] },
+  { "kind": "subagent", "items": [{ "id": "s_456", "label": "文献综述" }] },
+  { "kind": "job",      "items": [{ "id": "job_1", "label": "批量入库" }] },
+  { "kind": "schedule", "items": [{ "id": "sch_9", "label": "每早 8 点提醒" }] }
+]
+未知 kind 不报错，UI 用兜底句「{n} 项其他工作（{kind}）」。
+
+传了 stopActivity: true → 跳过活跃检查，先写归档，再派发停止。 顺序不能反：归档集合是停止动作引发唤醒时的拦截依据；先写集合，被停任务的回调即使醒来也会被闸门拦掉。
+unarchiveSession(sessionId)：只从集合里删 id；不检查会话是否存在——删 id 不可能引入未知会话，所以即使会话文件已丢，过期 id 也能被清掉（客户端必须容忍孤儿 id，不能因此崩）。
+
+3.4 只读门（归档之后为什么真的跑不起来）
+dsh-api-session-controller 里一个叫 ArchivedSessionGate 的插件：
+
+js
+
+
+ctx.on("agent/pre-step", (payload, next) =>
+  underArchivedSession(ctx, payload.agent)
+    ? Promise.resolve({ kind: "reject" })
+    : next());
+拒绝发生在「模型步之前」，所以不花 token、不发请求；这一轮以 blocked 结束。
+underArchivedSession 会沿 parentSession 往上追溯仅 subagent 来源的血统：归档父会话，其子代理也一起被拦。
+fork 出来的会话是独立会话，不受父会话归档影响（这是刻意的：fork 属于另起一段对话）。
+对你的应用，等价物是：归档时 abort() 正在跑的流；流回调里再查一次 session.archived，为真就丢弃增量（防竞态）；用户从归档会话发消息 → 直接拦下并提示先恢复。
+
+4. 交互规格（照抄级）
+4.1 入口（三个，缺一不可）
+入口	细节
+行尾悬停按钮	图标按钮，排在 ... 菜单之后；悬停 500ms 出 tooltip「归档会话」
+行「...」菜单	菜单行：置顶(100) / 重命名(200) / fork(300) / 归档(400)；归档行显示为「取消归档」，且不再显示快捷键提示
+快捷键	桌面 Ctrl+Shift+A，Web Ctrl+Alt+A（避开浏览器占用）；无选中会话时提示「未选择会话」，不静默失败
+为什么悬停按钮和菜单都要：触摸屏没有 hover，只做悬停按钮等于移动端没有入口。
+
+4.2 三态过滤（核心设计）
+放在侧栏「视图选项」菜单里，标题「筛选会话」，三个互斥项：
+
+值	文案	图标语义
+default	隐藏已归档	归档-划线
+show	全部对话（显示已归档）	队列
+only	仅显示已归档	归档-勾
+默认 default；选择持久化（DSH 存在 dsh.workspace.view.v5，键名带版本号）。
+only 态下，没有归档成员的分组整组不显示；全空时给空态「暂无已归档会话」+ 按钮「查看其他会话」（点击切回 default）。
+子会话（origin === "subagent"）任何过滤下都不显示；空白会话只显示当前那一个。
+为什么是三个值而不是一个开关：一个开关只能表达「显示/不显示」，用户想「专门整理一下归档的东西」时没有入口；三态把一个布尔变成了三个明确任务。
+
+4.3 归档行长什么样
+标题前一个归档图标 + 文字「已归档」；置顶标记不显示；状态圆点（运行中/未读）不显示。
+不可点开：点击弹 toast「已归档对话暂时无法查看，请取消归档后查看」，不跳转、不选中。
+不可拖拽排序：draggable = !row.blank && !row.archived。
+搜索命中归档会话时同样拦：aria-description 写明不可打开，点击走同一个 toast。
+行尾按钮变成「取消归档」（同一个位置，图标换成 unarchive）。
+4.4 有任务在跑：确认框
+流程：先不带 stopActivity 试归档 → 收到 workspace/session-active → 弹「停止并归档此会话？」
+
+元素	内容
+标题	停止并归档此会话？
+描述	「{title}」仍有正在进行的工作。归档会先停止这些工作；之后可在侧栏筛选「全部对话（显示已归档）」中恢复会话，被停止的工作不会自动继续。
+列表标题	将被停止的工作
+行	进行中的回合 / {n} 个运行中的子智能体：{names} / {n} 个后台任务：{names} / {n} 条定时提醒：{names} / {n} 项其他工作（{kind}）
+确认按钮	停止并归档 → 提交中禁用并显示「正在停止并归档…」
+取消	关对话框；会话继续跑、继续可见。不产生任何写入
+细节：对话框按会话 id 做 key，每个请求独立；请求结束（成功/失败/取消）时其「提交中/错误」状态一起销毁，避免下一次打开看到上一次的错误。失败时保留对话框并显示错误，不能静默关闭。
+
+为什么必须列清单：用户怕的不是「归档」，是「归档把我正在跑的东西弄没了」。只写「有 3 项工作」不够，要写出名字。
+
+4.5 Toast + 撤销
+归档成功后：
+
+会话已归档，可 [撤销] 或 [筛选已归档会话]
+
+停留 6 秒（DSH LONG_TOAST_HOLD_MS = 6000），成功色调。
+「撤销」立即 unarchive，不再二次确认——这是用户最容易误触的一步。
+「或 筛选已归档会话」只在当前过滤是 default 时显示（已经是 show/only 时这按钮是空操作，就别显示）。
+停止并归档的版本文案：「已停止并归档，可 …」。
+4.6 搜索必须跟随过滤
+搜索是同一个 sessionVisible() 谓词，不是另一套逻辑。默认态下搜不到归档会话；show / only 态下跟着变。否则用户会遇到「列表里没有，搜索里点开报错」。
+
+4.7 文案表（可直接用）
+key	中文	English
+menu.archiveSession	归档会话	Archive session
+menu.unarchiveSession	取消归档	Unarchive session
+actions.archive	归档会话	Archive session
+actions.unarchive	取消归档	Unarchive session
+row.archived	已归档	Archived
+viewOptions.hideArchived	隐藏已归档	Hide archived
+viewOptions.showArchived	全部对话（显示已归档）	All conversations (show archived)
+viewOptions.onlyArchived	仅显示已归档	Archived only
+empty.noneArchived	暂无已归档会话	No archived sessions yet
+empty.viewOthers	查看其他会话	View other sessions
+toast.archived	会话已归档，可	Session archived. You can
+toast.stoppedAndArchived	已停止并归档，可	Session stopped and archived. You can
+toast.archivedUndo	撤销	undo
+toast.archivedOr	或	or
+toast.archivedFilter	筛选已归档会话	show archived sessions
+toast.archivedNotOpenable	已归档对话暂时无法查看，请取消归档后查看	Archived sessions cannot be opened. Unarchive it to view.
+archive.confirm.title	停止并归档此会话？	Stop and archive this session?
+archive.confirm.action	停止并归档	Stop and archive
+archive.confirm.pending	正在停止并归档…	Stopping and archiving…
+5. 移植方案（HTML + AI 聊天）
+下面按「你的应用已经有会话列表 + 消息存储」来写，存储层用你自己的实现，只要求四个能力：
+
+js
+
+
+// store.getSession(id)          -> Session | undefined
+// store.listSessions()          -> Session[]
+// store.updateSession(id, patch)-> Session        // 读改写在一个事务里
+// store.transact(fn)            -> Promise<T>     // 串行化所有写
+5.1 数据模型
+js
+
+
+/** @typedef {{
+ *   id: string,
+ *   title: string,
+ *   createdAt: string,        // ISO
+ *   updatedAt: string,        // ISO
+ *   pinned: boolean,
+ *   archived: boolean,
+ *   archivedAt: string | null,
+ *   order: number,            // 排序槽位，只增不改；归档不动它
+ *   origin: 'user' | 'subagent',
+ *   blank?: boolean
+ * }} Session */
+三条硬约束：
+
+order 只在创建/手动拖动时改；归档与恢复不碰它。
+archived: true 必须和 pinned: false 在同一次写里落盘。
+不给归档加 deleteAt / expiresAt：归档不自动清理，清理是另一个功能。
+5.2 纯函数（先写这个，UI 全靠它）
+js
+
+
+const FILTERS = new Set(['default', 'show', 'only']);
+
+/** 与会话 id 无关的过滤谓词；搜索、分组、最近列表全部复用它。 */
+function sessionVisible(s, filter = 'default', currentId = null) {
+  if (!FILTERS.has(filter)) throw new Error(`bad archivedFilter: ${filter}`);
+  if (s.origin === 'subagent') return false;                 // 子会话永不显示
+  if (s.blank && s.id !== currentId) return false;           // 空白会话只显示当前
+  if (filter === 'default') return !s.archived;
+  if (filter === 'show') return true;
+  return !!s.archived;                                       // only
+}
+真值表（normal × 3、archived × 3）：
+
+filter	普通会话	归档会话
+default	显示	隐藏
+show	显示	显示
+only	隐藏	显示
+5.3 归档 / 恢复（含并发与幂等）
+js
+
+
+class ArchiveBusyError extends Error {
+  constructor(activity) {
+    super('workspace/session-active');
+    this.code = 'workspace/session-active';
+    this.activity = activity;   // [{kind, items:[{id,label?}]}]
+  }
+}
+
+async function archiveSession(id, { stopActivity = false } = {}) {
+  const result = await store.transact(async () => {
+    const s = await store.getSession(id);
+    if (!s) throw Object.assign(new Error('session/not-found'), { code: 'session/not-found' });
+    if (s.archived) return { changed: false };              // 幂等
+
+    if (!stopActivity) {
+      const activity = collectActivity(id);
+      if (activity.length > 0) throw new ArchiveBusyError(activity);
+    }
+
+    await store.updateSession(id, {
+      archived: true,
+      archivedAt: new Date().toISOString(),
+      pinned: false                                          // 同一次写里清置顶
+    });
+    return { changed: true, wasPinned: s.pinned };
+  });
+
+  if (result.changed) {
+    broadcast({ type: 'archived', id, at: Date.now() });
+    if (stopActivity) await stopSessionWork(id);             // 先写归档，再停
+  }
+  return result;
+}
+
+async function unarchiveSession(id) {
+  const result = await store.transact(async () => {
+    const s = await store.getSession(id);
+    if (!s || !s.archived) return { changed: false };        // 幂等；不校验存在性
+    await store.updateSession(id, { archived: false, archivedAt: null });
+    return { changed: true };
+  });
+  if (result.changed) broadcast({ type: 'unarchived', id, at: Date.now() });
+  return result;
+}
+并发要点：
+
+所有写走同一条串行链（store.transact），避免「A 点归档、B 点恢复」交错后状态取决于谁先落盘。
+客户端收到推送只重算、不回写，防止回声。
+归档集合可能含已删除会话的 id（见 3.3）；渲染时先按 listSessions() 过滤掉孤儿，任何地方都别 assert id 存在。
+5.4 流式生成中点了归档怎么办
+推荐（与 DSH 同序）：
+
+事务里写 archived: true；
+abort() 当前 AbortController；
+流回调统一入口检查一次：
+js
+
+
+async function onDelta(sessionId, text) {
+  const s = await store.getSession(sessionId);
+  if (!s || s.archived) return;      // 归档后到达的增量一律丢弃
+  appendToUI(sessionId, text);
+}
+提示文案用「已停止并归档」版本，别只说「已归档」——用户需要知道刚才那一轮没跑完。
+不要做的事：
+
+不要等流自然结束再归档（用户以为停了，实际还在烧 token）。
+不要把「归档」实现成「先删消息再标记」（无法恢复，且撤销 toast 会变成谎言）。
+不要在归档后自动生成标题、自动总结、自动重试——这些都属于「跑」。
+别在 abort 之后立刻删消息；保留到用户明确「删除」为止。
+5.5 UI 接线清单
+ 会话行加归档图标 + 「已归档」，隐藏置顶标记与状态点。
+ 点击归档行 → toast，不打开；键盘 Enter 同样拦。
+ 关闭拖拽（draggable=false），否则用户能把归档行拖进普通分组，状态自相矛盾。
+ 行尾按钮 / 菜单项在归档行显示「取消归档」。
+ 视图选项菜单加「筛选会话」三态，持久化。
+ only 空态给「暂无已归档会话」+「查看其他会话」。
+ 确认框：标题、描述、活动清单、提交中禁用、失败保留并报错、Esc = 取消。
+ 成功 toast 6s + 撤销 + 「筛选已归档会话」（仅 default 态）。
+ 搜索、最近列表、快捷切换器全部复用 sessionVisible()。
+ 无障碍：归档按钮的 aria-label 随状态切换；归档行加 aria-description="已归档，取消归档后查看"；toast role="status"；对话框 role="alertdialog" 且焦点陷阱。
+只读态的变体（如果用户想「归档了也能看」）：不做「不可打开」，改成打开后置只读——输入框禁用、显示横幅「已归档，恢复后可继续」、所有发送入口拦下、onDelta 同样检查 archived。代价是多一个只读状态要测（复制、导出、搜索、快捷键都得考虑），建议 MVP 先不做。
+
+5.6 迁移与存储
+老数据没有 archived 字段：读取时 archived: s.archived ?? false，写回时补齐；不要为了加字段重写全部消息。
+版本化存储键：chat.sessions.v2 / chat.view.v1；升级时读旧键、写新键、保留旧键一版再删。
+localStorage 只有 ~5MB：长对话 + 图片必然撑爆，归档不会释放空间。会话正文建议 IndexedDB；归档只是布尔字段，放哪都行。
+如果应用界面显示「占用空间」，归档会话照算；需要空间就另做「删除」（二次确认 + 先导出），别把归档当清理。
+5.7 多标签页
+js
+
+
+const bus = new BroadcastChannel('chat.archive');
+bus.onmessage = (e) => {
+  // 只重读这一条并重渲染；不要整表重载，避免打断正在输入的另一标签
+  refreshSession(e.data.id);
+};
+// 每个写操作成功后：bus.postMessage({type:'archived'|'unarchived', id, at:Date.now()})
+兜底：没有 BroadcastChannel 的环境用 window.addEventListener('storage', ...)；两条路都只做「重读」，写仍然走事务，天然幂等。
+
+5.8 最小存储适配器（localStorage 版）
+接不上 IndexedDB 时可以先这样跑通（会话很多时再换）：
+
+js
+
+
+const KEY = 'chat.sessions.v2';
+const readAll = () => { try { return JSON.parse(localStorage.getItem(KEY) ?? '[]'); } catch { return []; } };
+
+let chain = Promise.resolve();
+const store = {
+  transact(fn) {
+    const run = chain.then(async () => {
+      const all = readAll();
+      const api = {
+        list: () => all.slice(),
+        get: (id) => all.find((s) => s.id === id),
+        update(id, patch) {
+          const i = all.findIndex((s) => s.id === id);
+          if (i < 0) throw Object.assign(new Error('session/not-found'), { code: 'session/not-found' });
+          all[i] = { ...all[i], ...patch, updatedAt: new Date().toISOString() };
+          localStorage.setItem(KEY, JSON.stringify(all));   // 一次整体写，原子
+          return all[i];
+        }
+      };
+      return fn(api);
+    });
+    chain = run.catch(() => {});   // 一次失败不能卡死后续写
+    return run;
+  }
+};
+6. 测试清单
+#	用例	期望
+1	归档普通会话	从 default 列表消失；archived=true；消息数不变
+2	归档已归档会话	无写入、无报错
+3	恢复未归档会话	无写入、无报错
+4	归档后恢复	回到原位置（order 未变），pinned 仍为 false
+5	置顶会话归档	同一次写里 pinned=false
+6	对归档会话调置顶	拒绝（提示「已归档的会话不能置顶」）
+7	流式中归档（不带 stop）	拒绝，activity 含 turn
+8	流式中归档（stop）	归档成功；abort 被调用；之后到达的增量不渲染
+9	三态过滤 × {普通, 归档}	见 5.2 真值表
+10	搜索「关键词」	默认态不命中归档；show/only 态命中
+11	归档行点击 / 回车	toast，不打开
+12	归档行拖拽	不可拖
+13	撤销 toast	6s 内点撤销 → 原位恢复；pinned 不变
+14	归档集合含已删 id	不崩、不显示、恢复时清掉
+15	两个标签页同时操作	最终状态一致，无重复行/幽灵行
+16	刷新页面	过滤态与归档态都还在
+17	无障碍	按钮 aria-label 随状态变；对话框有 alertdialog + 焦点陷阱；toast 可被读屏播报
+最后补一条手工验收：归档 20 条后再恢复 20 条，列表顺序与归档前逐条一致。 这条过了，排序槽位才算真的没被动过。
+
+7. 进阶：如果你要的是「会话变短但 AI 还记得」
+这是另一件事，DSH 里由一个第三方插件 billion-context 做（包版本 0.1.213，约 10k 行内核 + 550 个测试）。它不叫归档，但干的是「把已消费的旧消息折叠成可恢复的摘要块」——如果你的应用有长对话撞上下文上限的问题，这章是路线图。
+
+7.1 它解决什么
+架在应用与模型 API 之间：已消费的历史被模型总结成块，原文从「发给模型的上下文」里移除，但留在本地，可随时按需展开。原则是「增量、可逆、对前缀缓存友好」。
+
+7.2 块模型（可直接照搬的结构）
+ts
+
+
+type CompressionBlock = {
+  blockId: string,
+  tier: 1 | 2 | 3,             // 多代分层：消息→块→块
+  topic: string,
+  summary: string,
+  directMessageIds: string[],  // 这一块直接总结的原始消息
+  effectiveMessageIds: string[],// 传递闭包：这一块覆盖的全部原始消息
+  directBlockIds: string[],    // tier-2/3 的来源块
+  createdAt: string,
+  survivedCount: number,
+  generation: 'young' | 'old',
+  active: boolean              // 是否渲染进上下文；停用不等于删除
+};
+tier-1 折「连续消息区间」；tier-2 折「tier-1 块」；tier-3 再折 tier-2。像「散文上的 LSM 树」：年轻代吸收写入，老年代存压实结果，压实是增量的。
+生命周期：active 渲染进上下文；decompress 重新激活来源、停用该块；decompress-to-file 把原文写到文件而不进上下文（保住缓存前缀）；块被上层消费后作为「已消耗血统」保留，批量解压能还原整个 run。
+7.3 四个动作
+动作	作用
+compress	把一段消息范围折成摘要块（模型写摘要，库做簿记）
+decompress	恢复精确细节（默认回退一层，full 回到原始消息）
+search_context	在块摘要 + 折叠原文里关键词检索
+acp_status	当前上下文用量 + 哪些区间还可压
+7.4 最小移植（不用照抄整个内核）
+对你的 HTML 应用，先做手动触发版就够验证价值：
+
+表 blocks：{id, sessionId, fromSeq, toSeq, summary, tier, active, createdAt, msgCount}；原始消息一条不删。
+请求组装：system + 所有 active 块摘要（按时间序）+ 最近 N 条原文 + 当前用户消息。
+保护规则：最后约 5 条消息、最后一条用户消息、第一条用户消息（任务意图）永不进压缩范围；压缩工具调用本身也保护。
+触发：先做按钮「整理这段对话」，别一上来做自动触发（自动触发的阈值调参是另一个项目）。
+「展开原文」：从本地库按 fromSeq..toSeq 取原文，只在本次请求里注入，块保持 active——等价于 decompress-to-file，不破坏已建立的前缀。
+摘要要求：保留文件路径、函数签名、错误原文、带理由的决策、精确数值、目标演化；丢掉冗长日志、重复读取、已走完的死胡同（保留一句教训）。摘要头写「TASK AS OF THIS BLOCK」，让后来的阅读者知道那是历史，不是当前指令。
+7.5 数字与边界（来自该插件论文/生产数据）
+常驻占比：tier-1 92%、tier-2 7%、tier-3 <1%；但 tier-2+3 只占 8% 常驻、承载 37% 历史内容。
+每块代表跨度中位：~11K / ~55K / ~204K token（逐层放大 ≈4–5×）。
+留存率：块级约 1/8（工具主导块 ~1/24）；每段内容一生只折一次，所以不随轮数几何衰减。
+缓存：活跃节奏下缓存读占比 94.2%（只压后缀、不动前缀的结构前提）。
+再蒸馏很少：1711 个块里只有 60 个（3.5%）被 tier-2 消费。
+触发是两个条件同时满足：上下文超过窗口约 45%，且自上次压缩以来增长超过门控量（门控 50K、有效下限 22.5K）。
+一次性压缩的产出很小：单块摘要中位 185 token，97.5% 的块 ≤2K。
+边界（务必写进你的设计文档）：
+
+这套东西不省本地存储，省的是 token 和注意力；原文仍在本机。
+不让模型自己决定恢复，它基本不会主动想起来——「展开原文」必须是 UI 上的显式入口。
+UI 里别把「会话归档（隐藏）」和「上下文折叠（压缩）」都叫「归档」，用户会以为归档能省 token。DSH 里这是两个不同能力、两套数据。
+8. 证据索引（本机 DSH 安装目录，供复核）
+根目录：C:\Users\刘喆\AppData\Roaming\npm\node_modules\@deepseek-ai\dsh\node_modules\@deepseek-ai\
+
+事实	位置
+归档集合 schema（默认 []，version 2）	dsh-workspace\lib\index.js:230-269
+archiveSession（幂等/存在性/活跃检查/清置顶/stopActivity 顺序）	dsh-workspace\lib\index.js:524-540
+unarchiveSession（不校验存在性）	dsh-workspace\lib\index.js:551-560
+置顶拒绝已归档	dsh-workspace\lib\index.js:576-587
+用户语义原文（隐藏/恢复/移除项目）	dsh-workspace\README.zh.md:77
+活动接缝与两类调用	dsh-workspace\README.zh.md:102
+非原子性已知限制	dsh-workspace\README.zh.md:176
+RPC 与错误码	dsh-api-workspace-controller\lib\index.js:297-322
+归档准入闸 + 血统追溯	dsh-api-session-controller\lib\index.js:2405-2455
+过滤谓词	dsh-client-ui-workspace\lib\client.js:357-367
+快捷键（桌面/Web）	dsh-client-ui-workspace\lib\client.js:193
+视图态持久化键	dsh-client-ui-workspace\lib\client.js:665
+三态菜单	dsh-client-ui-workspace\lib\client.js:2169-2278
+归档动作 + 失败转确认框	dsh-client-ui-workspace\lib\client.js:4196-4232
+确认框与活动行映射	dsh-client-ui-workspace\lib\client.js:3469-3563
+撤销 toast（6s）	dsh-client-ui-workspace\lib\client.js:3799-3830
+文案（中文）	dsh-client-ui-workspace\lib\client.js:3879-3954
+归档行渲染（徽标/不可拖/不可开）	dsh-client-ui-workspace\lib\client.js:1479、1578-1640
+上下文折叠工具说明	billion-context\README.zh-CN.md:72-107
+块模型/生命周期/触发	billion-context\paper\模型驱动的分层增量压缩-免训练多代上下文管理.md:61-147
+折叠状态存储路径	billion-context\CONFIGURATION.zh-CN.md:17
+9. 给实现 agent 的执行顺序
+加字段 + 迁移（1 小时）：archived/archivedAt，读取补默认值。
+写 sessionVisible()，把它接到列表、搜索、最近列表（半天）：这一步不做，后面全是补丁。
+加入口（悬停 + 菜单 + 快捷键），先只做「无活跃工作时归档」。
+加三态过滤 + 持久化。
+加确认框（活跃工作清单）+ abort + 增量丢率检查。
+加 toast + 撤销。
+跑第 6 章测试，重点是第 4 条（原位恢复）和第 8 条（流式竞态）。
+做完 1–6 大概 200–300 行代码，不含第 7 章。
