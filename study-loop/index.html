@@ -4446,11 +4446,11 @@ var chatBusy = false;
    预留 C 方案：只需 setAI({mode:"byok",baseUrl:"https://...",apiKey:"...",model:"..."})
    不调用时行为与原来完全一致。 */
 var AI_CONFIG = {
-  mode: "local",
-  baseUrl: "",
+  mode: "proxy",
+  baseUrl: "/v1/chat/completions",
   apiKey: "",
-  model: "",
-  timeout: 12000,
+  model: "mnk-chat",
+  timeout: 10000,
   historyLimit: 8,
   system: "你是学习应用里的答疑助手 Lune。用中文回答，语气轻松，控制在 120 字以内；只聊 Python 入门相关问题；不贴大段代码，最多给一个三行以内的例子；不确定就直说。"
 };
