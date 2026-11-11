@@ -13,6 +13,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 
 const SRC = "study-loop/index.html";
 const OUT = "exports/mnk-demo-live.html";
@@ -25,22 +26,38 @@ if (!url || !key) {
   process.exit(1);
 }
 
-// 简单混淆：XOR + base64，再切成 4 段。仅提高提取门槛。
-function obf(s) {
-  const buf = Buffer.from(s, "utf8");
-  for (let i = 0; i < buf.length; i++) buf[i] ^= 0x5a;
-  const b64 = buf.toString("base64");
-  const n = Math.ceil(b64.length / 4);
-  return [b64.slice(0, n), b64.slice(n, n * 2), b64.slice(n * 2, n * 3), b64.slice(n * 3)];
+// 混淆 v2：payload → XOR(k1) → base64 → XOR(k2) → base64 → 切 4 段乱序。
+// k1/k2 每次构建随机生成，产物每次都不同。防 Ctrl+F / 随手看源码，不防有意逆向。
+function encode(payload) {
+  const k1 = crypto.randomInt(1, 256);
+  const k2 = crypto.randomInt(1, 256);
+  const x1 = Buffer.from(payload, "utf8");
+  for (let i = 0; i < x1.length; i++) x1[i] ^= k1;
+  const b1 = x1.toString("base64");
+  const x2 = Buffer.from(b1, "utf8");
+  for (let i = 0; i < x2.length; i++) x2[i] ^= k2;
+  const b2 = x2.toString("base64");
+  const n = Math.ceil(b2.length / 4);
+  const parts = [b2.slice(0, n), b2.slice(n, 2 * n), b2.slice(2 * n, 3 * n), b2.slice(3 * n)];
+  const order = [0, 1, 2, 3];
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = crypto.randomInt(0, i + 1);
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return { segs: order.map((i) => parts[i]), order, k1, k2 };
 }
-const [a, b, c, d] = obf(`${url}\n${key}`);
+const { segs, order, k1, k2 } = encode(`${url}\n${key}`);
 
 const prelude = `
 <script>
 (function(){
-  var P=["${a}","${b}","${c}","${d}"],B=atob(P.join("")),X="";
-  for(var i=0;i<B.length;i++)X+=String.fromCharCode(B.charCodeAt(i)^0x5a);
-  var L=X.split("\\n"),U=L[0],K=L[1];
+  var _0x=["${segs[0]}","${segs[1]}","${segs[2]}","${segs[3]}"],_0x1=[${order.join(",")}],_0x2=${k1}^0,_0x3=${k2}^0;
+  var _0x4=_0x[_0x1[0]]+_0x[_0x1[1]]+_0x[_0x1[2]]+_0x[_0x1[3]];
+  var _0x5=atob(_0x4),_0x6="";
+  for(var i=0;i<_0x5.length;i++)_0x6+=String.fromCharCode(_0x5.charCodeAt(i)^_0x3);
+  var _0x7=atob(_0x6),_0x8="";
+  for(var i=0;i<_0x7.length;i++)_0x8+=String.fromCharCode(_0x7.charCodeAt(i)^_0x2);
+  var _0x9=_0x8.split("\\n"),U=_0x9[0],K=_0x9[1];
   if(!U||!K)return;
   var F=window.fetch;
   window.fetch=function(u,o){
