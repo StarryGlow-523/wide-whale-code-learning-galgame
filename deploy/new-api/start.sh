@@ -15,15 +15,16 @@ if [ ! -f .env ]; then
 fi
 
 set -a; . ./.env; set +a
-for k in DOMAIN ALLOW_ORIGIN ACME_EMAIL SESSION_SECRET; do
+for k in DOMAIN ALLOW_ORIGIN ACME_EMAIL SESSION_SECRET NEWAPI_TOKEN; do
   if [ -z "${!k:-}" ]; then
     echo ".env 缺少 $k，请填写后重试。" >&2
+    if [ "$k" = "NEWAPI_TOKEN" ]; then
+      echo "  首次部署：先执行 docker compose up -d new-api，再建 SSH 隧道进面板创建令牌，" >&2
+      echo "  把 sk- 填进 .env 的 NEWAPI_TOKEN，然后重新运行本脚本。" >&2
+    fi
     exit 1
   fi
 done
-if [ -z "${NEWAPI_TOKEN:-}" ]; then
-  echo "提示：NEWAPI_TOKEN 为空。首次启动后到面板创建令牌，填入 .env 再重启。"
-fi
 
 mkdir -p data site
 

@@ -14,8 +14,9 @@ services:
       # 留空则使用内置 SQLite（./data/one-api.db），小规模足够
       SQL_DSN: ${SQL_DSN:-}
       ERROR_LOG_ENABLED: "true"
-      # 单机部署保持 false；多实例才需要 true
-      NODE_TYPE: "slave"
+      # 单机部署必须是 master（默认值）；slave 仅用于多机从节点，
+      # 设成 slave 会导致迁移、配置热更新、渠道缓存同步等后台任务不执行。
+      NODE_TYPE: "master"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/status >/dev/null || exit 1"]
       interval: 30s
