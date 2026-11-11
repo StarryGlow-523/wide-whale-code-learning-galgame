@@ -4697,16 +4697,18 @@ var chatInput = document.getElementById("chatInput");
 var chatBusy = false;
 
 /* ===================== AI 接入层（固定同源代理，零密钥） ===================== */
-/* 前端不保存、不接受、不发送任何密钥。baseUrl 与 model 固定且冻结，
-   不再从 localStorage / window 读取覆盖值，移除 BYOK 注入通道。 */
-var AI_CONFIG = Object.freeze({
-  mode: "proxy",
-  model: "mnk-chat",
+/* 密钥不进入前端：不接受外部地址、不注入任何凭据、不接受运行时覆盖。
+   仅保留 local / proxy 两种模式，local 用于手动切回本地回答。 */
+var AI_MODE = "proxy";
+const AI_CONFIG = Object.freeze({
+  get mode(){ return AI_MODE; },
+  baseUrl: "/v1/chat/completions",
   timeout: 10000,
   historyLimit: 8,
   system: "你是学习应用里的答疑助手 Lune。用中文回答，语气轻松，控制在 120 字以内；只聊 Python 入门相关问题；不贴大段代码，最多给一个三行以内的例子；不确定就直说。"
 });
-try{ localStorage.removeItem("mnk_ai"); }catch(e){}
+function aiSetMode(m){ AI_MODE = (m === "local") ? "local" : "proxy"; return AI_MODE; }
+window.aiSetMode = aiSetMode;
 function aiOn(){ return AI_CONFIG.mode !== "local"; }
 function aiHistory(sid){
   var ses = (typeof findChatSession === "function") ? findChatSession(sid) : null;
@@ -4720,7 +4722,8 @@ function aiHistory(sid){
 }
 async function aiReply(text, sid){
   if(!aiOn()) return null;
-  var url = "/v1/chat/completions";
+  var url = AI_CONFIG.baseUrl;
+  if(url.charAt(0) !== "/") url = "/" + url;
   var hist = aiHistory(sid);
   if(hist.length && hist[hist.length-1].role === "user" && hist[hist.length-1].content === text) hist.pop();
   var msgs = [{ role: "system", content: AI_CONFIG.system }].concat(hist).concat([{ role: "user", content: text }]);
@@ -4732,7 +4735,7 @@ async function aiReply(text, sid){
     var r = await fetch(url, {
       method: "POST",
       headers: headers,
-      body: JSON.stringify({ model: AI_CONFIG.model || "default", messages: msgs, max_tokens: 400, temperature: 0.6 }),
+      body: JSON.stringify({ model: "mnk-chat", messages: msgs, max_tokens: 400, temperature: 0.6 }),
       signal: ctl.signal
     });
     if(!r.ok) throw new Error("HTTP " + r.status);
