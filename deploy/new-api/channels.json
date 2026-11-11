@@ -1,0 +1,84 @@
+{
+  "_note": "new-api 渠道配置清单。字段含义见 _mapping；按 channels 顺序在控制台逐条添加。",
+  "_mapping": {
+    "name": "渠道名称（随便填，方便识别）",
+    "type": "渠道类型：全部选「OpenAI」",
+    "base_url": "Base URL（不带 /v1）",
+    "models": "「模型」输入框，填 mnk-chat",
+    "model_map": "「模型重定向」JSON，把 mnk-chat 映射到该家真实型号",
+    "param_override": "「参数覆盖」JSON，会合并进请求体",
+    "priority": "优先级，数字小的先用",
+    "weight": "权重，同优先级按权重分流",
+    "timeout_s": "该渠道超时（在「设置 → 运营设置」里配全局，或渠道单独配）"
+  },
+  "_env_keys": {
+    "qianfan": "百度千帆 API Key，形如 bce-v3/ALTAK-xxxx",
+    "hunyuan": "腾讯混元 API Key，形如 sk-xxxx",
+    "spark": "讯飞 APIPassword（不是 AppID/APISecret）",
+    "zhipu": "智谱 API Key，形如 xxxxxxxx.yyyyyyyy",
+    "gemini_relay": "第三方中转 key，形如 sk-xxxx"
+  },
+  "channels": [
+    {
+      "name": "千帆-ernie-speed（主力）",
+      "type": "OpenAI",
+      "base_url": "https://qianfan.baidubce.com",
+      "models": ["mnk-chat"],
+      "model_map": { "mnk-chat": "ernie-speed-128k" },
+      "param_override": {},
+      "priority": 1,
+      "weight": 40,
+      "timeout_s": 10
+    },
+    {
+      "name": "混元-lite（次选）",
+      "type": "OpenAI",
+      "base_url": "https://api.hunyuan.cloud.tencent.com",
+      "models": ["mnk-chat"],
+      "model_map": { "mnk-chat": "hunyuan-lite" },
+      "param_override": {},
+      "priority": 2,
+      "weight": 25,
+      "timeout_s": 10
+    },
+    {
+      "name": "讯飞-lite（兜底）",
+      "type": "OpenAI",
+      "base_url": "https://spark-api-open.xf-yun.com",
+      "models": ["mnk-chat"],
+      "model_map": { "mnk-chat": "lite" },
+      "param_override": {},
+      "priority": 3,
+      "weight": 15,
+      "timeout_s": 10
+    },
+    {
+      "name": "智谱-4.7-flash（关思考）",
+      "type": "OpenAI",
+      "base_url": "https://open.bigmodel.cn",
+      "models": ["mnk-chat"],
+      "model_map": { "mnk-chat": "glm-4.7-flash" },
+      "param_override": { "thinking": { "type": "disabled" } },
+      "priority": 4,
+      "weight": 20,
+      "timeout_s": 10
+    },
+    {
+      "name": "Gemini中转（应急）",
+      "type": "OpenAI",
+      "base_url": "http://186.241.104.178:3000",
+      "models": ["mnk-chat"],
+      "model_map": { "mnk-chat": "gemini-3.8-flash-high" },
+      "param_override": {},
+      "priority": 9,
+      "weight": 10,
+      "timeout_s": 10
+    }
+  ],
+  "_global_settings": {
+    "重试次数": 1,
+    "超时": "10s",
+    "自动禁用渠道": "开启，阈值设为连续失败 5 次（默认值太敏感，会把免费渠道误禁）",
+    "允许跨渠道重试": true
+  }
+}
