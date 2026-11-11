@@ -3304,12 +3304,24 @@ function load(){
       /* 新存档是 {v:版本号, data:状态}；老存档直接就是状态对象，两种都要能读 */
       if(o && typeof o === "object" && o.data && typeof o.data === "object"){
         STATE.schemaVersion = o.v || 1;
-        /* 题库整体更换后旧进度（关卡号/错题 bid）无映射关系，直接作废重来 */
-        if(STATE.schemaVersion !== SAVE_VERSION) return;
+        /* 题库整体更换后旧进度（关卡号/错题 bid）无映射关系，直接作废重来；
+           同时清掉旧键并明确提示，避免"进度静默归零"且每次启动重复解析 */
+        if(STATE.schemaVersion !== SAVE_VERSION){
+          try{ localStorage.removeItem("mnk_state"); }catch(e){}
+          var _oldV = STATE.schemaVersion;
+          setTimeout(function(){
+            if(typeof toast === "function") toast("存档版本不兼容（v" + _oldV + " → v" + SAVE_VERSION + "），学习进度已重置");
+          }, 300);
+          return;
+        }
         o = o.data;
       }else{
         STATE.schemaVersion = 1;
         /* 无版本号的更老存档同样作废 */
+        try{ localStorage.removeItem("mnk_state"); }catch(e){}
+        setTimeout(function(){
+          if(typeof toast === "function") toast("检测到旧版存档，无法兼容，学习进度已重置");
+        }, 300);
         return;
       }
       STATE.starred = o.starred || {};
@@ -4792,8 +4804,9 @@ async function sendMsg(){
   addMsg(t, "me");
   chatInput.value = "";
   chatBusy = true;
-  var tp = addTyping();
+  var tp = null;
   try{
+    tp = addTyping();
     var reply = null;
     if(aiOn()){
       try{
