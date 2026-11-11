@@ -1,0 +1,11 @@
+$ bash start.sh
+cp: cannot stat '.env.example': No such file or directory
+exit=1
+
+$ bash smoke.sh
+smoke.sh: line 5: ./.env: No such file or directory
+exit=1
+
+$ docker --version
+zsh:1: command not found: docker
+exit=127
