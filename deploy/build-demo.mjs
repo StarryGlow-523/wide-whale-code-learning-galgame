@@ -19,6 +19,7 @@ const OUT = "exports/mnk-demo-live.html";
 
 const url = (process.env.RELAY_URL || "").replace(/\/+$/, "");
 const key = process.env.RELAY_KEY || "";
+const model = process.env.RELAY_MODEL || "mnk-chat";
 if (!url || !key) {
   console.error("缺少 RELAY_URL 或 RELAY_KEY，未生成。");
   process.exit(1);
@@ -56,6 +57,9 @@ const prelude = `
 let html = fs.readFileSync(SRC, "utf8");
 const before = html;
 html = html.replace('mode: "local",', 'mode: "proxy",');
+html = html.split('model: "mnk-chat"').join(`model: ${JSON.stringify(model)}`);
+// 中转侧多为推理型模型，首字延迟常在 5-8s，演示版放宽超时避免误回落
+html = html.replace("timeout: 10000,", "timeout: 25000,");
 if (html === before) {
   console.error("未找到 mode: \"local\"，页面可能已被改动，已中止。");
   process.exit(1);
