@@ -20,25 +20,25 @@
   },
   "channels": [
     {
-      "name": "千帆-ernie-speed（主力）",
+      "name": "混元-lite（主力）",
       "type": "OpenAI",
-      "base_url": "https://qianfan.baidubce.com",
+      "base_url": "https://api.hunyuan.cloud.tencent.com",
       "models": ["mnk-chat"],
-      "model_map": { "mnk-chat": "ernie-speed-128k" },
+      "model_map": { "mnk-chat": "hunyuan-lite" },
       "param_override": {},
       "priority": 1,
       "weight": 40,
       "timeout_s": 10
     },
     {
-      "name": "混元-lite（次选）",
+      "name": "千帆-ernie-speed（确认有免费型号再启用）",
       "type": "OpenAI",
-      "base_url": "https://api.hunyuan.cloud.tencent.com",
+      "base_url": "https://qianfan.baidubce.com",
       "models": ["mnk-chat"],
-      "model_map": { "mnk-chat": "hunyuan-lite" },
+      "model_map": { "mnk-chat": "ernie-speed-128k" },
       "param_override": {},
-      "priority": 2,
-      "weight": 25,
+      "priority": 4,
+      "weight": 20,
       "timeout_s": 10
     },
     {
@@ -48,8 +48,8 @@
       "models": ["mnk-chat"],
       "model_map": { "mnk-chat": "lite" },
       "param_override": {},
-      "priority": 3,
-      "weight": 15,
+      "priority": 2,
+      "weight": 25,
       "timeout_s": 10
     },
     {
@@ -59,8 +59,8 @@
       "models": ["mnk-chat"],
       "model_map": { "mnk-chat": "glm-4.7-flash" },
       "param_override": { "thinking": { "type": "disabled" } },
-      "priority": 4,
-      "weight": 20,
+      "priority": 3,
+      "weight": 15,
       "timeout_s": 10
     },
     {
