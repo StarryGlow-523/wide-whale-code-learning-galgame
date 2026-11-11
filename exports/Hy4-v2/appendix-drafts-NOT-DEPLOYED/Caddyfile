@@ -1,0 +1,44 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	# ---------- CORS（只放行你的站点） ----------
+	@preflight {
+		method OPTIONS
+		path /v1/*
+	}
+	respond @preflight 204 {
+		header Access-Control-Allow-Origin "{$ALLOW_ORIGIN}"
+		header Access-Control-Allow-Methods "POST, GET, OPTIONS"
+		header Access-Control-Allow-Headers "Content-Type, Authorization"
+		header Access-Control-Max-Age "86400"
+	}
+	header {
+		Access-Control-Allow-Origin "{$ALLOW_ORIGIN}"
+		-Server
+	}
+
+	# ---------- AI 接口：Caddy 注入主令牌，前端不持有密钥 ----------
+	@ai path /v1/*
+	reverse_proxy @ai 127.0.0.1:3000 {
+		header_up Authorization "Bearer {$NEWAPI_TOKEN}"
+		header_up Host {upstream_hostport}
+	}
+
+	# ---------- 管理面板：默认对外 403，只能通过 SSH 隧道访问 ----------
+	@admin {
+		path /console* /panel* /api/*
+		not path /api/status
+	}
+	respond @admin "forbidden: use ssh -L 3000:127.0.0.1:3000" 403
+
+	# ---------- 静态站点（可选）：把 index.html 放进 ./site ----------
+	handle {
+		root * /srv
+		file_server
+		try_files {path} /index.html
+	}
+}
