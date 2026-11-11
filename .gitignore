@@ -62,3 +62,6 @@ exports/
 # GitHub 单文件上限 100MB，超过会被拒收。
 # 游戏素材（视频/语音/高清图）请走 Git LFS：
 #   git lfs track "*.psd" "*.wav" "*.mp4"
+
+# Caddy 静态目录（部署时由 start.sh 生成，不进仓库）
+deploy/new-api/site/

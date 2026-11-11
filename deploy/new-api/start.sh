@@ -27,6 +27,18 @@ fi
 
 mkdir -p data site
 
+# 把学习应用同步到 Caddy 静态目录，保证页面与 /v1 同域，前端不用配任何地址
+APP_SRC="../../study-loop"
+if [ -f "$APP_SRC/index.html" ]; then
+  echo "==> 同步静态站点到 ./site"
+  cp -f "$APP_SRC/index.html" site/index.html
+  if [ -d "$APP_SRC/bgm" ]; then
+    cp -rf "$APP_SRC/bgm" site/
+  fi
+else
+  echo "警告：未找到 $APP_SRC/index.html，Caddy 将没有前端页面。" >&2
+fi
+
 echo "==> 拉取镜像"
 docker compose pull
 
