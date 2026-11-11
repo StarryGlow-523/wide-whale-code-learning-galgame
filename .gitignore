@@ -41,9 +41,16 @@ build/
 # ---- 密钥 / 本地配置（千万别提交）----
 .env
 .env.*
+!.env.example
 *.key
 *.pem
 secrets.*
+
+# ---- new-api 运行数据（含明文上游 key，绝不提交）----
+deploy/new-api/data/
+*.db
+*.db-journal
+*.log
 
 # ---- 大文件提醒 ----
 # GitHub 单文件上限 100MB，超过会被拒收。

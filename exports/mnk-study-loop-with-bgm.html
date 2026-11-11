@@ -4696,37 +4696,18 @@ var chatBody = document.getElementById("chatBody");
 var chatInput = document.getElementById("chatInput");
 var chatBusy = false;
 
-/* ===================== AI 接入层（Provider 可切换） ===================== */
-/* mode: "local" 本地预设回答 | "proxy" 自有代理 | "byok" 用户自带 Key
-   预留 C 方案：只需 setAI({mode:"byok",baseUrl:"https://...",apiKey:"...",model:"..."})
-   不调用时行为与原来完全一致。 */
-var AI_CONFIG = {
+/* ===================== AI 接入层（固定同源代理，零密钥） ===================== */
+/* 前端不保存、不接受、不发送任何密钥。baseUrl 与 model 固定且冻结，
+   不再从 localStorage / window 读取覆盖值，移除 BYOK 注入通道。 */
+var AI_CONFIG = Object.freeze({
   mode: "proxy",
-  baseUrl: "/v1/chat/completions",
-  apiKey: "",
   model: "mnk-chat",
   timeout: 10000,
   historyLimit: 8,
   system: "你是学习应用里的答疑助手 Lune。用中文回答，语气轻松，控制在 120 字以内；只聊 Python 入门相关问题；不贴大段代码，最多给一个三行以内的例子；不确定就直说。"
-};
-(function loadAI(){
-  try{
-    var raw = localStorage.getItem("mnk_ai");
-    if(!raw) return;
-    var o = JSON.parse(raw);
-    for(var k in AI_CONFIG){
-      if(o[k] !== undefined && o[k] !== null) AI_CONFIG[k] = o[k];
-    }
-  }catch(e){}
-})();
-function setAI(patch){
-  if(patch) for(var k in patch){ if(k in AI_CONFIG) AI_CONFIG[k] = patch[k]; }
-  try{ localStorage.setItem("mnk_ai", JSON.stringify(AI_CONFIG)); }catch(e){}
-  return AI_CONFIG;
-}
-window.setAI = setAI;
-window.AI_CONFIG = AI_CONFIG;
-function aiOn(){ return AI_CONFIG.mode && AI_CONFIG.mode !== "local"; }
+});
+try{ localStorage.removeItem("mnk_ai"); }catch(e){}
+function aiOn(){ return AI_CONFIG.mode !== "local"; }
 function aiHistory(sid){
   var ses = (typeof findChatSession === "function") ? findChatSession(sid) : null;
   var msgs = (ses && ses.msgs) ? ses.msgs : [];
@@ -4738,17 +4719,12 @@ function aiHistory(sid){
   return out;
 }
 async function aiReply(text, sid){
-  if(!aiOn() || !AI_CONFIG.baseUrl) return null;
-  var url = AI_CONFIG.baseUrl;
-  if(!/^https?:\/\//.test(url) && url.charAt(0) !== "/") url = "/" + url;
-  if(location.protocol === "https:" && url.indexOf("http://") === 0){
-    throw new Error("HTTPS 页面无法调用 http 接口（混合内容），请改用 https 代理");
-  }
+  if(!aiOn()) return null;
+  var url = "/v1/chat/completions";
   var hist = aiHistory(sid);
   if(hist.length && hist[hist.length-1].role === "user" && hist[hist.length-1].content === text) hist.pop();
   var msgs = [{ role: "system", content: AI_CONFIG.system }].concat(hist).concat([{ role: "user", content: text }]);
   var headers = { "Content-Type": "application/json" };
-  if(AI_CONFIG.apiKey) headers.Authorization = "Bearer " + AI_CONFIG.apiKey;
   var ctl = new AbortController();
   var timer = setTimeout(function(){ ctl.abort(); }, AI_CONFIG.timeout);
   var t0 = Date.now();

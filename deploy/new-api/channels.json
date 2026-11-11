@@ -1,5 +1,5 @@
 {
-  "_note": "new-api 渠道配置清单（最终两家版）。按 channels 顺序在控制台逐条添加。",
+  "_note": "new-api 渠道配置清单（单渠道版）。Gemini 中转因上游是明文 HTTP，已按审议意见 L4 停用；在拿到 HTTPS 中转地址前不得启用。",
   "_mapping": {
     "name": "渠道名称（随便填，方便识别）",
     "type": "渠道类型：选「OpenAI」",
@@ -12,8 +12,7 @@
     "timeout_s": "该渠道超时，在「设置 → 运营设置」里配全局"
   },
   "_env_keys": {
-    "zhipu": "智谱 API Key，形如 xxxxxxxx.yyyyyyyy",
-    "gemini_relay": "第三方中转 key，形如 sk-xxxx"
+    "zhipu": "智谱 API Key，形如 xxxxxxxx.yyyyyyyy"
   },
   "channels": [
     {
@@ -24,27 +23,16 @@
       "model_map": { "mnk-chat": "glm-4.7-flash" },
       "param_override": { "thinking": { "type": "disabled" } },
       "priority": 1,
-      "weight": 80,
+      "weight": 100,
       "timeout_s": 8
-    },
-    {
-      "name": "Gemini中转（备·1/3卡死）",
-      "type": "OpenAI",
-      "base_url": "http://186.241.104.178:3000",
-      "models": ["mnk-chat"],
-      "model_map": { "mnk-chat": "gemini-3.8-flash-high" },
-      "param_override": {},
-      "priority": 9,
-      "weight": 20,
-      "timeout_s": 10
     }
   ],
-  "_routing_note": "不同优先级是「先主后备」：智谱先跑，429/超时立刻落 Gemini。两家都失败由前端落到本地回答。",
+  "_routing_note": "当前只保留智谱。429/超时由 new-api 重试 1 次，仍失败由前端回落本地回答。Gemini 明文 HTTP 渠道已移除，改为 HTTPS 中转后再加回。",
   "_global_settings": {
     "重试次数": 1,
     "超时": "10s",
     "自动禁用渠道": "开启，连续失败 5 次才禁用（阈值调高，避免免费渠道被误禁）",
     "允许跨渠道重试": true,
-    "缓存": "强烈建议开启，重复问题直接回，能砍掉一半 Gemini 流量"
+    "缓存": "建议开启，重复问题直接回，减少上游调用"
   }
 }

@@ -2,6 +2,10 @@
 # 冒烟测试：验证 Caddy 注入令牌后，/v1 接口可用
 set -euo pipefail
 cd "$(dirname "$0")"
+if [ ! -f .env ]; then
+  echo ".env 不存在，请先运行 start.sh 并填写配置。" >&2
+  exit 1
+fi
 set -a; . ./.env; set +a
 
 echo "== 1. 服务状态 =="
